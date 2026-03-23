@@ -5,6 +5,7 @@ Project: `cxabhucaixwfyxvwlgdn`
 This runbook applies:
 - `SUPABASE_MIGRATION_001.sql`
 - `SUPABASE_MIGRATION_002.sql`
+- `SUPABASE_MIGRATION_003.sql`
 
 ## 1) Pre-checks
 
@@ -109,13 +110,55 @@ values
 on conflict (code) do nothing;
 ```
 
-## 5) Post-run smoke checks
+## 5) Apply Migration 003
+
+1. Open SQL Editor in Supabase.
+2. Paste and run `SUPABASE_MIGRATION_003.sql`.
+3. Verify success (no errors).
+
+### Verification queries (Migration 003)
+
+```sql
+select tablename
+from pg_tables
+where schemaname = 'public'
+  and tablename in (
+    'borrower_profile_links',
+    'repayment_allocations'
+  )
+order by tablename;
+```
+
+```sql
+select viewname
+from pg_views
+where schemaname = 'public'
+  and viewname in (
+    'v_recon_missing_erpnext_links',
+    'v_integration_queue_health'
+  )
+order by viewname;
+```
+
+```sql
+select proname
+from pg_proc
+where proname in (
+  'enforce_borrower_profile_link_tenant',
+  'allocate_repayment_to_schedule'
+)
+order by proname;
+```
+
+## 6) Post-run smoke checks
 
 - Authenticated test user in tenant A can only read tenant A borrower rows.
 - Authenticated test user in tenant B cannot read tenant A rows.
 - `integration_events` accepts unique idempotency keys per tenant.
+- Inserting a completed repayment creates rows in `repayment_allocations`.
+- `v_recon_missing_erpnext_links` lists entities not yet linked to ERPNext.
 
-## 6) Rollback guidance
+## 7) Rollback guidance
 
 These migrations are additive and create tables/policies/functions.
 If rollback is required:
