@@ -6,6 +6,7 @@ This runbook applies:
 - `SUPABASE_MIGRATION_001.sql`
 - `SUPABASE_MIGRATION_002.sql`
 - `SUPABASE_MIGRATION_003.sql`
+- `SUPABASE_SEED_DEMO.sql` (optional for UAT demo data)
 
 ## 1) Pre-checks
 
@@ -158,7 +159,37 @@ order by proname;
 - Inserting a completed repayment creates rows in `repayment_allocations`.
 - `v_recon_missing_erpnext_links` lists entities not yet linked to ERPNext.
 
-## 7) Rollback guidance
+## 7) Optional UAT seed
+
+Run `SUPABASE_SEED_DEMO.sql` after migrations for demo/testing data.
+
+### UAT seed verification
+
+```sql
+select t.code as tenant_code, count(*) as borrower_count
+from public.borrowers b
+join public.tenants t on t.id = b.tenant_id
+group by t.code
+order by t.code;
+```
+
+```sql
+select t.code as tenant_code, count(*) as loan_count
+from public.loans l
+join public.tenants t on t.id = l.tenant_id
+group by t.code
+order by t.code;
+```
+
+```sql
+select t.code as tenant_code, count(*) as repayment_count
+from public.repayments r
+join public.tenants t on t.id = r.tenant_id
+group by t.code
+order by t.code;
+```
+
+## 8) Rollback guidance
 
 These migrations are additive and create tables/policies/functions.
 If rollback is required:
