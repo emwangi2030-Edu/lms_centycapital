@@ -33,6 +33,12 @@ Then open http://localhost:3001
 - Add auth and wire `erp_customer_id` for customer-facing flows if this app hosts any.
 - Deploy to lms.centycapital.com (static site on CyberPanel host **172.239.110.187**).
 
+## Document Vault (Frappe / ERPNext)
+
+The **CentyLMS Document Vault** (`centylms_dms`) is a **Frappe custom app** on the ERPNext site (not the static files in this repo). See the updated implementation plan:
+
+- **[docs/CENTYLMS_DMS_IMPLEMENTATION_PLAN.md](docs/CENTYLMS_DMS_IMPLEMENTATION_PLAN.md)** — architecture (static LMS vs ERPNext vs DocuSeal), Phase 0 discovery, phases 1–6, deployment split.
+
 ## Deploy (server over SSH)
 
 **Production host:** `172.239.110.187` (hostname `tarakilishi-web-01`)  
