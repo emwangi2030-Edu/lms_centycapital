@@ -1,0 +1,10 @@
+{
+  "name": "lms-console",
+  "version": "1.0.0",
+  "description": "CentyCapital LMS internal console UI",
+  "private": true,
+  "scripts": {
+    "start": "npx serve -l 3001",
+    "serve": "npx serve -l 3001"
+  }
+}

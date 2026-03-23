@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- LMS static build id — if missing in View Source on lms.centycapital.com, deploy did not update -->
+  <meta name="lms-build" content="20260321-rbac1">
+  <base href="/">
+  <title>CentyCapital LMS</title>
+  <link rel="canonical" href="https://lms.centycapital.com/">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><polygon points='16,2 28,9 28,23 16,30 4,23 4,9' fill='%2300a865'/><text x='16' y='22' text-anchor='middle' font-family='sans-serif' font-size='13' font-weight='700' fill='white'>CC</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&family=Fraunces:opsz,ital,wght@9..144,0,400;9..144,1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" style="display:none;">
+      <div class="login-card">
+        <div class="login-brand">
+          <div class="login-brand-icon">CC</div>
+          <div class="login-brand-name">CentyCapital LMS</div>
+        </div>
+        <div class="login-title">Sign in to your account</div>
+        <div class="login-sub">Internal LMS console · Kenya</div>
+        <div class="field" style="margin-bottom:12px;">
+          <label>Email address</label>
+          <input type="email" id="login-email" placeholder="admin@centycapital.com" autocomplete="email">
+        </div>
+        <div class="field" style="margin-bottom:16px;">
+          <label>Password</label>
+          <input type="password" id="login-pwd" placeholder="••••••••" autocomplete="current-password">
+          <div class="login-err" id="login-error"></div>
+        </div>
+        <button class="btn btn-primary w100" onclick="login()" style="height:40px;font-size:14px;">Sign In →</button>
+        <div class="login-hint">Demo — password for all: <b>demo1234</b><br>
+          admin@centycapital.com · manager@centycapital.com · officer@centycapital.com<br>
+          grace@client.centycapital.com · edwin@upeo.co.ke</div>
+      </div>
+    </div>
+
+    <!-- MOBILE SIDEBAR OVERLAY -->
+    <div class="mobile-overlay" id="mobile-overlay" onclick="closeSidebar()"></div>
+
+    <!-- MAIN SHELL -->
+    <div class="shell" id="app-shell" style="display:none;">
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar">
+      <div class="brand">
+        <div class="brand-icon">CC</div>
+        <span class="brand-name">CentyCapital</span>
+        <span class="brand-badge">LMS</span>
+      </div>
+      <div class="nav-section" style="padding-bottom:8px;">
+        <div class="nav-item" id="nav-item-profile" onclick="showView('profile')" style="display:none;">
+          <span class="nav-icon">👤</span> My Profile
+        </div>
+        <div class="nav-item active" id="nav-item-dashboard" onclick="showView('dashboard')">
+          <span class="nav-icon">⬡</span> Dashboard
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Origination</div>
+        <div class="nav-item" onclick="showView('leads')">
+          <span class="nav-icon">🎯</span> Leads
+          <span class="nav-badge" id="nb-leads">6</span>
+        </div>
+        <div class="nav-item" onclick="showView('applications')">
+          <span class="nav-icon">📋</span> Applications
+          <span class="nav-badge red" id="nb-apps">7</span>
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Portfolio</div>
+        <div class="nav-item" onclick="showView('loans')">
+          <span class="nav-icon">💳</span> Loans
+          <span class="nav-badge blue" id="nb-loans">12</span>
+        </div>
+        <div class="nav-item" onclick="showView('borrowers')">
+          <span class="nav-icon">👥</span> Borrowers
+        </div>
+        <div class="nav-item" onclick="showView('mpesa')">
+          <span class="nav-icon">📲</span> M-Pesa Payments
+        </div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Credit Scoring</div>
+        <div class="nav-item" onclick="window.location.href='centycred.html'"><span class="nav-icon">🧠</span> CentyCred</div>
+        <div class="nav-item" onclick="window.location.href='centycred.html#history'"><span class="nav-icon">📈</span> Score History</div>
+        <div class="nav-item" onclick="window.location.href='centycred.html#cc-settings'"><span class="nav-icon">⚙️</span> Scorecard Settings</div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Configuration</div>
+        <div class="nav-item" onclick="showView('reports')"><span class="nav-icon">📊</span> Reports</div>
+        <div class="nav-item" onclick="showView('products')">
+          <span class="nav-icon">📦</span> Products
+        </div>
+        <div class="nav-item" onclick="showView('kyc')">
+          <span class="nav-icon">🪪</span> KYC Management
+        </div>
+        <div class="nav-item" onclick="showView('profiles')">
+          <span class="nav-icon">🗂️</span> Borrower Profiles
+        </div>
+        <div class="nav-item" onclick="showView('sms')">
+          <span class="nav-icon">💬</span> SMS Management
+        </div>
+        <div class="nav-item" onclick="showView('dms')">
+          <span class="nav-icon">🔄</span> DMS Refresh
+        </div>
+      </div>
+      <div class="sidebar-footer">
+        <div class="nav-item" onclick="showView('settings')" style="margin-bottom:4px;">
+          <span class="nav-icon">⚙️</span> Settings
+        </div>
+        <div class="logout-btn" onclick="logout()">
+          <span class="nav-icon">→</span> Sign out
+        </div>
+      </div>
+    </aside>
+
+    <main id="main">
+      <div class="topbar">
+        <button class="hamburger-btn" onclick="toggleSidebar()" title="Toggle menu">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="topbar-title" id="topbar-title">Every lead, tracked from first contact.</div>
+        <div class="topbar-actions">
+          <div class="gsearch-wrap" id="gsearch-wrap">
+            <input class="gsearch-input" id="gsearch-input" type="text" placeholder="Search loans, borrowers, leads…" oninput="globalSearch(this.value)" onfocus="globalSearch(this.value)" autocomplete="off">
+            <div class="gsearch-results" id="gsearch-results"></div>
+          </div>
+          <button class="icon-btn theme-toggle-btn" id="theme-toggle-btn" onclick="toggleDarkMode()" title="Toggle dark mode">🌙</button>
+          <div class="notif-wrapper" id="topbar-notif-wrap">
+            <div class="icon-btn" onclick="toggleNotifPanel()" style="position:relative;">
+              🔔
+              <span class="notif-badge" id="notif-badge" style="display:none">3</span>
+            </div>
+            <div class="notif-panel" id="notif-panel">
+              <div class="notif-header">
+                <span>Notifications</span>
+                <button class="btn btn-ghost btn-xs" onclick="markAllRead()">Mark all read</button>
+              </div>
+              <div id="notif-list"></div>
+            </div>
+          </div>
+          <div class="icon-btn">🔍</div>
+          <div class="avatar">EM</div>
+        </div>
+      </div>
+
+      <!-- VIEW: PROFILE (client portal) -->
+      <div id="view-profile" class="content" style="display:none;">
+        <div class="page-head"><h2>My LMS profile</h2><p>Your borrower record, scoped to your organisation (tenant).</p></div>
+        <div class="kpi-grid anim">
+          <div class="kpi d1"><div class="kpi-label">Borrower</div><div class="kpi-value" id="prof-name">—</div><div class="kpi-sub"><b>display name</b></div></div>
+          <div class="kpi d2"><div class="kpi-label">Reference</div><div class="kpi-value" style="font-size:14px" id="prof-ref">—</div><div class="kpi-sub"><b>tenant · national ID</b></div></div>
+          <div class="kpi d3"><div class="kpi-label">KYC completion</div><div class="kpi-value" id="prof-kyc-pct">—</div><div class="kpi-sub"><b>required docs</b></div></div>
+        </div>
+        <div class="card anim">
+          <div class="card-header"><span class="card-title">Required documents</span></div>
+          <div id="prof-kyc-list" class="card-body" style="padding:0;"></div>
+        </div>
+      </div>
+
+      <!-- VIEW: DASHBOARD -->
+      <div id="view-dashboard" class="content" style="display:none;">
+        <div class="alert-strip critical anim d1" id="alert-overdue">
+          <span class="alert-icon">🔴</span>
+          <span class="alert-text" id="alert-overdue-text"><strong>3 loans are overdue by 3+ days</strong> — KES 39,100 at risk. Immediate outreach recommended.</span>
+          <span class="alert-link" onclick="showView('loans')">Review Overdue →</span>
+          <span class="alert-dismiss" onclick="dismissAlert('alert-overdue')" title="Dismiss">✕</span>
+        </div>
+        <div class="alert-strip anim d1" id="alert-apps" style="margin-top:-8px;">
+          <span class="alert-icon">⚠️</span>
+          <span class="alert-text" id="alert-apps-text"><strong>7 applications pending approval</strong> — oldest is 4 days old. Your pipeline may be cooling.</span>
+          <span class="alert-link" onclick="showView('applications')">Approve Now →</span>
+          <span class="alert-dismiss" onclick="dismissAlert('alert-apps')" title="Dismiss">✕</span>
+        </div>
+        <div class="db-hero">
+          <div class="db-kpi anim d2">
+            <div class="db-kpi-accent" style="background:linear-gradient(90deg,var(--green),var(--teal))"></div>
+            <div class="db-kpi-glow" style="background:var(--green)"></div>
+            <div class="db-kpi-icon" style="background:var(--green-lt);">💳</div>
+            <div class="db-kpi-label">Active Loan Book</div>
+            <div class="db-kpi-val kpi-value" id="db-kpi-book">KES 338K</div>
+            <div><span class="db-kpi-delta up">↑ 12.4%</span> <span class="db-kpi-sub">vs last month</span></div>
+          </div>
+          <div class="db-kpi anim d3">
+            <div class="db-kpi-accent" style="background:linear-gradient(90deg,var(--blue),var(--purple))"></div>
+            <div class="db-kpi-glow" style="background:var(--blue)"></div>
+            <div class="db-kpi-icon" style="background:var(--blue-lt);">👥</div>
+            <div class="db-kpi-label">Active Borrowers</div>
+            <div class="db-kpi-val kpi-value" id="db-kpi-borrowers">8</div>
+            <div><span class="db-kpi-delta up" id="db-kpi-new-bwr">↑ 2</span> <span class="db-kpi-sub">new this month</span></div>
+          </div>
+          <div class="db-kpi anim d4">
+            <div class="db-kpi-accent" style="background:linear-gradient(90deg,var(--rose),var(--amber))"></div>
+            <div class="db-kpi-glow" style="background:var(--rose)"></div>
+            <div class="db-kpi-icon" style="background:var(--rose-lt);">⚠️</div>
+            <div class="db-kpi-label">Overdue Amount</div>
+            <div class="db-kpi-val kpi-value" id="db-kpi-overdue">KES 39.1K</div>
+            <div><span class="db-kpi-delta dn">↑ 3 loans</span> <span class="db-kpi-sub">3+ days past due</span></div>
+          </div>
+          <div class="db-kpi anim d5">
+            <div class="db-kpi-accent" style="background:linear-gradient(90deg,var(--teal),var(--green))"></div>
+            <div class="db-kpi-glow" style="background:var(--teal)"></div>
+            <div class="db-kpi-icon" style="background:var(--teal-lt);">📲</div>
+            <div class="db-kpi-label">M-Pesa Collected</div>
+            <div class="db-kpi-val kpi-value" id="db-kpi-mpesa">KES 161K</div>
+            <div><span class="db-kpi-delta up">↑ 8 payments</span> <span class="db-kpi-sub">this cycle</span></div>
+          </div>
+        </div>
+        <div class="metric-row anim d3">
+          <div class="metric-cell"><div class="metric-cell-lbl">PAR > 1 Day</div><div class="metric-cell-val" style="color:var(--amber-dk)">11.6%</div><div class="metric-cell-sub">KES 39,100 at risk</div></div>
+          <div class="metric-cell"><div class="metric-cell-lbl">Collection Rate</div><div class="metric-cell-val" style="color:var(--green-dk)">87.5%</div><div class="metric-cell-sub">7 of 8 on track</div></div>
+          <div class="metric-cell"><div class="metric-cell-lbl">Avg CentyCred</div><div class="metric-cell-val">738</div><div class="metric-cell-sub">Good · Tier 1 cohort</div></div>
+          <div class="metric-cell"><div class="metric-cell-lbl">Avg Loan Size</div><div class="metric-cell-val">KES 28.2K</div><div class="metric-cell-sub">↑ 15% vs prior period</div></div>
+          <div class="metric-cell"><div class="metric-cell-lbl">Disbursements (Mar)</div><div class="metric-cell-val">KES 315K</div><div class="metric-cell-sub">6 loans · this month</div></div>
+          <div class="metric-cell" style="border-right:none;"><div class="metric-cell-lbl">Repaid (Mar)</div><div class="metric-cell-val" style="color:var(--green-dk)">KES 21.2K</div><div class="metric-cell-sub">2 loans fully closed</div></div>
+        </div>
+        <div class="db-grid anim d4" style="margin-bottom:12px;">
+          <div class="ch">
+            <div class="ch-head">
+              <div><div class="ch-title">Monthly Disbursements</div><div class="ch-sub">KES disbursed per month · last 8 months</div></div>
+              <span class="ch-pill">+12.4% MoM</span>
+            </div>
+            <div class="ch-body">
+              <div class="bar-chart" id="db-bar-chart"></div>
+            </div>
+          </div>
+          <div class="ch">
+            <div class="ch-head">
+              <div><div class="ch-title">Portfolio by Status</div><div class="ch-sub">Loan book composition</div></div>
+            </div>
+            <div class="ch-body">
+              <div id="db-portfolio-donut"></div>
+            </div>
+          </div>
+        </div>
+        <div class="db-grid anim d5" style="margin-bottom:12px;">
+          <div class="ch">
+            <div class="ch-head">
+              <div><div class="ch-title">Collections vs Repayments Due</div><div class="ch-sub">KES · last 8 months · actual vs expected</div></div>
+              <span class="ch-pill">87.5% rate</span>
+            </div>
+            <div class="ch-body" style="padding-bottom:0;">
+              <svg id="db-line-svg" viewBox="0 0 560 150" preserveAspectRatio="none" style="height:120px;width:100%;display:block;"></svg>
+              <div style="display:flex;gap:16px;padding:10px 0 4px;border-top:1px solid var(--border);margin-top:8px;">
+                <div style="display:flex;align-items:center;gap:6px;font-size:var(--t-small);color:var(--text3);"><div style="width:20px;height:2px;background:var(--green);border-radius:2px;"></div> Collected</div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:var(--t-small);color:var(--text3);"><div style="width:20px;height:2px;background:var(--border2);border-radius:2px;border:1px dashed var(--text4);"></div> Expected</div>
+              </div>
+            </div>
+          </div>
+          <div class="ch">
+            <div class="ch-head"><div><div class="ch-title">Lead Conversion Funnel</div><div class="ch-sub">Origination pipeline · current cycle</div></div></div>
+            <div class="ch-body" style="padding-top:12px;"><div id="db-funnel"></div></div>
+          </div>
+        </div>
+        <div class="db-grid three anim d6" style="margin-bottom:12px;">
+          <div class="ch">
+            <div class="ch-head"><div><div class="ch-title">Product Mix</div><div class="ch-sub">Loans by product · % of book value</div></div></div>
+            <div class="ch-body" id="db-product-mix"></div>
+          </div>
+          <div class="ch">
+            <div class="ch-head"><div><div class="ch-title">CentyCred Distribution</div><div class="ch-sub">Borrower score tiers</div></div></div>
+            <div class="ch-body" id="db-centycred-chart"></div>
+          </div>
+          <div class="ch">
+            <div class="ch-head"><div><div class="ch-title">Recent Activity</div><div class="ch-sub">Live portfolio events</div></div></div>
+            <div class="ch-body" style="padding-top:8px;padding-bottom:4px;">
+              <div class="activity-item">
+                <div class="activity-dot" style="background:var(--green)"></div>
+                <div class="activity-content">
+                  <div class="activity-text"><strong>Grace Wanjiku</strong> repaid KES 31,500 — CNTLOAN001 closed ✅</div>
+                  <div class="activity-time">Today 09:04 · M-Pesa RA4X9KL2MT</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot" style="background:var(--blue)"></div>
+                <div class="activity-content">
+                  <div class="activity-text"><strong>Esther Muthoni</strong> — KES 100K application submitted (CentyPro 120)</div>
+                  <div class="activity-time">Today 08:45 · CNTAPP006</div>
+                </div>
+              </div>
+              <div class="activity-item" style="border-bottom:none;">
+                <div class="activity-dot" style="background:var(--amber)"></div>
+                <div class="activity-content">
+                  <div class="activity-text"><strong>Faith Njeri</strong> — CNTLOAN003 is 3 days overdue. KES 21,100 at risk.</div>
+                  <div class="activity-time">Yesterday 08:00 · Auto-alert</div>
+                </div>
+              </div>
+              <div style="padding:10px 0 6px;border-top:1px solid var(--border);margin-top:4px;">
+                <span style="font-size:var(--t-small);color:var(--blue);cursor:pointer;font-weight:600;" onclick="showView('loans')">View all loans →</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="db-grid anim d7">
+          <div class="ch">
+            <div class="ch-head"><div><div class="ch-title">Top Borrowers by Exposure</div><div class="ch-sub">Outstanding balance · ranked</div></div></div>
+            <div class="ch-body" style="padding-top:10px;"><div id="db-top-borrowers"></div></div>
+          </div>
+          <div class="ch">
+            <div class="ch-head"><div><div class="ch-title">Overdue Watch List</div><div class="ch-sub">Loans requiring immediate action</div></div></div>
+            <div class="ch-body" style="padding:0;">
+              <table>
+                <thead><tr><th>Borrower</th><th>Loan Ref</th><th>Amount (KES)</th><th>Days Overdue</th><th>Action</th></tr></thead>
+                <tbody>
+                  <tr onclick="openLoanDrawer('CNTLOAN003')">
+                    <td class="name">Faith Njeri</td><td class="mono">CNTLOAN003</td><td class="mono">21,100</td>
+                    <td><span class="badge amber">3 days</span></td>
+                    <td><button class="btn btn-ghost btn-xs" onclick="event.stopPropagation();openModal('modal-send-sms')">📤 SMS</button></td>
+                  </tr>
+                  <tr onclick="openLoanDrawer('CNTLOAN006')">
+                    <td class="name">Samuel Kiprono</td><td class="mono">CNTLOAN006</td><td class="mono">19,800</td>
+                    <td><span class="badge rose">36 days</span></td>
+                    <td><button class="btn btn-danger btn-xs" onclick="event.stopPropagation();toast('Escalating Samuel Kiprono','error')">Escalate</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW: LEADS -->
+      <div id="view-leads" class="content" style="display:none;">
+        <div class="kpi-grid anim">
+          <div class="kpi d1"><div class="kpi-label">Total Leads</div><div class="kpi-value" id="kpi-leads-total">—</div><div class="kpi-sub"><b>this month</b></div></div>
+          <div class="kpi d2"><div class="kpi-label">Pending Review</div><div class="kpi-value" id="kpi-leads-pending">—</div><div class="kpi-sub warn"><b>awaiting action</b></div></div>
+          <div class="kpi d3"><div class="kpi-label">Approved</div><div class="kpi-value" id="kpi-leads-approved">—</div><div class="kpi-sub"><b>converted</b></div></div>
+          <div class="kpi d4"><div class="kpi-label">Rejected</div><div class="kpi-value" id="kpi-leads-rejected">—</div><div class="kpi-sub danger"><b>declined</b></div></div>
+        </div>
+        <div class="card anim d3">
+          <div class="card-header">
+            <span class="card-title">Lead Pipeline</span>
+            <div class="search-box"><span>🔍</span><input type="text" placeholder="Search leads…" oninput="filterLeads(this.value)"></div>
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-lead')">+ Add Lead</button>
+          </div>
+          <div class="tabs" id="leads-tabs">
+            <div class="tab" onclick="setLeadsTab('All',this)">All <span class="tab-count" id="tc-leads-All">0</span></div>
+            <div class="tab active" onclick="setLeadsTab('Pending',this)">Pending <span class="tab-count" id="tc-leads-Pending">0</span></div>
+            <div class="tab" onclick="setLeadsTab('Approved',this)">Approved <span class="tab-count" id="tc-leads-Approved">0</span></div>
+            <div class="tab" onclick="setLeadsTab('Completed',this)">Completed <span class="tab-count" id="tc-leads-Completed">0</span></div>
+            <div class="tab" onclick="setLeadsTab('Rejected',this)">Rejected <span class="tab-count" id="tc-leads-Rejected">0</span></div>
+          </div>
+          <table><thead><tr><th>Full Name</th><th>Phone</th><th>Business Name</th><th>Location</th><th>Distributor</th><th>Source</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="leads-tbody"></tbody></table>
+          <div id="leads-pagination"></div>
+        </div>
+      </div>
+
+      <!-- VIEW: APPLICATIONS -->
+      <div id="view-applications" class="content" style="display:none;">
+        <div class="kpi-grid anim">
+          <div class="kpi d1"><div class="kpi-label">Total Applications</div><div class="kpi-value" id="kpi-apps-total">—</div><div class="kpi-sub"><b>all time</b></div></div>
+          <div class="kpi d2"><div class="kpi-label">Pending Approval</div><div class="kpi-value" id="kpi-apps-pending">—</div><div class="kpi-sub warn"><b>needs action</b></div></div>
+          <div class="kpi d3"><div class="kpi-label">Avg Loan Ask</div><div class="kpi-value" id="kpi-apps-avg">—</div><div class="kpi-sub"><b>KES average</b></div></div>
+          <div class="kpi d4"><div class="kpi-label">Approval Rate</div><div class="kpi-value" id="kpi-apps-rate">—</div><div class="kpi-sub"><b>last 30 days</b></div></div>
+        </div>
+        <div class="card anim d3">
+          <div class="card-header">
+            <span class="card-title">Loan Applications</span>
+            <div class="search-box"><span>🔍</span><input type="text" placeholder="Search applications…" oninput="filterApps(this.value)"></div>
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-new-loan')">+ New Application</button>
+          </div>
+          <div class="tabs" id="apps-tabs">
+            <div class="tab active" onclick="setAppsTab('All',this)">All <span class="tab-count" id="tc-apps-All">0</span></div>
+            <div class="tab" onclick="setAppsTab('Pending',this)">Pending <span class="tab-count" id="tc-apps-Pending">0</span></div>
+            <div class="tab" onclick="setAppsTab('Approved',this)">Approved <span class="tab-count" id="tc-apps-Approved">0</span></div>
+            <div class="tab" onclick="setAppsTab('Rejected',this)">Rejected <span class="tab-count" id="tc-apps-Rejected">0</span></div>
+            <div class="tab" onclick="setAppsTab('Disbursed',this)">Disbursed <span class="tab-count" id="tc-apps-Disbursed">0</span></div>
+          </div>
+          <!-- Bulk action toolbar (visible when rows selected) -->
+          <div class="bulk-bar" id="bulk-bar-apps">
+            <span class="bulk-count" id="bulk-count-apps">0 selected</span>
+            <button class="btn btn-primary btn-xs" onclick="bulkApproveApps()">✅ Approve</button>
+            <button class="btn btn-danger btn-xs" onclick="bulkDeclineApps()">✕ Decline</button>
+            <button class="btn btn-ghost btn-xs" onclick="bulkExportApps()">↓ Export</button>
+            <button class="btn btn-ghost btn-xs" onclick="_selectedApps.clear();renderApps()">Clear</button>
+          </div>
+          <table><thead><tr>
+            <th style="width:32px;padding:0 8px;"><input type="checkbox" class="row-chk" id="chk-apps-all" onclick="toggleSelectAllApps(this)"></th>
+            <th>Loan Ref</th><th>Borrower</th><th>Amount (KES)</th><th>Interest Rate</th><th>Product</th><th>Partner</th><th>Status</th><th>Applied</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="apps-tbody"></tbody></table>
+          <div id="apps-pagination"></div>
+        </div>
+      </div>
+
+      <!-- VIEW: LOANS -->
+      <div id="view-loans" class="content" style="display:none;">
+        <div class="kpi-grid anim">
+          <div class="kpi d1"><div class="kpi-label">Active Loans</div><div class="kpi-value" id="kpi-loans-active">—</div><div class="kpi-sub"><b>performing</b></div></div>
+          <div class="kpi d2"><div class="kpi-label">Overdue</div><div class="kpi-value" id="kpi-loans-overdue">—</div><div class="kpi-sub danger"><b>need attention</b></div></div>
+          <div class="kpi d3"><div class="kpi-label">Total Book (KES)</div><div class="kpi-value" id="kpi-loans-book">—</div><div class="kpi-sub"><b>disbursed value</b></div></div>
+          <div class="kpi d4"><div class="kpi-label">Repaid</div><div class="kpi-value" id="kpi-loans-repaid">—</div><div class="kpi-sub"><b>closed loans</b></div></div>
+        </div>
+        <div class="card anim d3">
+          <div class="card-header">
+            <span class="card-title">Loan Book</span>
+            <div class="search-box"><span>🔍</span><input type="text" placeholder="Search loans…" oninput="filterLoans(this.value)"></div>
+            <div style="display:flex;gap:6px;">
+              <button class="btn btn-ghost btn-sm" onclick="exportCsv('loans')">↓ Export</button>
+              <button class="btn btn-primary btn-sm" onclick="openModal('modal-new-loan')">+ New Loan</button>
+            </div>
+          </div>
+          <div class="tabs">
+            <div class="tab" onclick="setLoansTab('All',this)">All <span class="tab-count" id="tc-loans-All">0</span></div>
+            <div class="tab active" onclick="setLoansTab('Active',this)">Active <span class="tab-count" id="tc-loans-Active">0</span></div>
+            <div class="tab" onclick="setLoansTab('Due',this)">Due <span class="tab-count" id="tc-loans-Due">0</span></div>
+            <div class="tab" onclick="setLoansTab('Overdue',this)">Overdue <span class="tab-count" id="tc-loans-Overdue">0</span></div>
+            <div class="tab" onclick="setLoansTab('Repaid',this)">Repaid <span class="tab-count" id="tc-loans-Repaid">0</span></div>
+            <div class="tab" onclick="setLoansTab('Withdrawn',this)">Withdrawn <span class="tab-count" id="tc-loans-Withdrawn">0</span></div>
+            <div class="tab" onclick="setLoansTab('Frozen',this)">Frozen <span class="tab-count" id="tc-loans-Frozen">0</span></div>
+            <div class="tab" onclick="setLoansTab('Written Off',this)">Written Off <span class="tab-count" id="tc-loans-Written_Off">0</span></div>
+          </div>
+          <table><thead><tr><th>Loan Ref</th><th>Borrower</th><th>KE Number</th><th>Amount (KES)</th><th>Disbursed</th><th>Repayment</th><th>Due Date</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="loans-tbody"></tbody></table>
+          <div id="loans-pagination"></div>
+        </div>
+      </div>
+
+      <!-- VIEW: BORROWERS -->
+      <div id="view-borrowers" class="content" style="display:none;">
+        <div class="kpi-grid anim">
+          <div class="kpi d1"><div class="kpi-label">Total Borrowers</div><div class="kpi-value" id="kpi-bwr-total">—</div><div class="kpi-sub"><b>in portfolio</b></div></div>
+          <div class="kpi d2"><div class="kpi-label">Active</div><div class="kpi-value" id="kpi-bwr-active">—</div><div class="kpi-sub"><b>with live loans</b></div></div>
+          <div class="kpi d3"><div class="kpi-label">Blacklisted</div><div class="kpi-value" id="kpi-bwr-blacklisted">—</div><div class="kpi-sub danger"><b>restricted</b></div></div>
+          <div class="kpi d4"><div class="kpi-label">Avg CentyCred</div><div class="kpi-value" id="kpi-bwr-score">—</div><div class="kpi-sub"><b>credit score</b></div></div>
+        </div>
+        <div class="card anim d3">
+          <div class="card-header">
+            <span class="card-title">Borrower Registry</span>
+            <div class="search-box"><span>🔍</span><input type="text" placeholder="Search borrowers…" oninput="filterBorrowers(this.value)"></div>
+            <div style="display:flex;gap:6px;">
+              <button class="btn btn-ghost btn-sm" onclick="exportCsv('borrowers')">↓ Export</button>
+              <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-borrower')">+ Add Borrower</button>
+            </div>
+          </div>
+          <div class="tabs">
+            <div class="tab" onclick="setBwrTab('All',this)">All <span class="tab-count" id="tc-bwr-All">0</span></div>
+            <div class="tab active" onclick="setBwrTab('Active',this)">Active <span class="tab-count" id="tc-bwr-Active">0</span></div>
+            <div class="tab" onclick="setBwrTab('Awaiting',this)">Awaiting Activation <span class="tab-count" id="tc-bwr-Awaiting">0</span></div>
+            <div class="tab" onclick="setBwrTab('Inactive',this)">Inactive <span class="tab-count" id="tc-bwr-Inactive">0</span></div>
+            <div class="tab" onclick="setBwrTab('Blacklisted',this)">Blacklisted <span class="tab-count" id="tc-bwr-Blacklisted">0</span></div>
+          </div>
+          <table><thead><tr><th>Borrower Ref</th><th>Name</th><th>Phone</th><th>KE Number</th><th>Loan Limit (KES)</th><th>CentyCred Score</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="borrowers-tbody"></tbody></table>
+          <div id="borrowers-pagination"></div>
+        </div>
+      </div>
+
+      <!-- VIEW: M-PESA -->
+      <div id="view-mpesa" class="content" style="display:none;">
+        <div class="kpi-grid anim">
+          <div class="kpi d1"><div class="kpi-label">Total Collected (KES)</div><div class="kpi-value" id="kpi-mp-total">—</div><div class="kpi-sub"><b>all repayments</b></div></div>
+          <div class="kpi d2"><div class="kpi-label">Today's Receipts</div><div class="kpi-value" id="kpi-mp-today">—</div><div class="kpi-sub"><b>KES received</b></div></div>
+          <div class="kpi d3"><div class="kpi-label">Completed</div><div class="kpi-value" id="kpi-mp-done">—</div><div class="kpi-sub"><b>transactions</b></div></div>
+          <div class="kpi d4"><div class="kpi-label">Pending Match</div><div class="kpi-value" id="kpi-mp-pending">—</div><div class="kpi-sub warn"><b>unmatched</b></div></div>
+        </div>
+        <div class="card anim d3">
+          <div class="card-header">
+            <span class="card-title">M-Pesa Repayments</span>
+            <div class="search-box"><span>🔍</span><input type="text" placeholder="Search M-Pesa code, phone…" oninput="filterMpesa(this.value)"></div>
+            <button class="btn btn-ghost btn-sm" onclick="exportCsv('mpesa')">↓ Export CSV</button>
+          </div>
+          <table><thead><tr><th>Phone</th><th>Amount (KES)</th><th>M-Pesa Code</th><th>Loan Account</th><th>Loan Ref</th><th>Mode</th><th>Created On</th><th>Completed</th></tr></thead>
+          <tbody id="mpesa-tbody"></tbody></table>
+          <div id="mpesa-pagination"></div>
+        </div>
+      </div>
+
+      <!-- VIEW: PRODUCTS -->
+      <div id="view-products" class="content" style="display:none;">
+        <div class="kpi-grid anim">
+          <div class="kpi d1"><div class="kpi-label">Total Products</div><div class="kpi-value" id="kpi-prod-total">—</div><div class="kpi-sub"><b>active products</b></div></div>
+          <div class="kpi d2"><div class="kpi-label">Avg Interest Rate</div><div class="kpi-value" id="kpi-prod-rate">—</div><div class="kpi-sub"><b>per month</b></div></div>
+          <div class="kpi d3"><div class="kpi-label">Max Loan Limit</div><div class="kpi-value" id="kpi-prod-max">—</div><div class="kpi-sub"><b>KES ceiling</b></div></div>
+          <div class="kpi d4"><div class="kpi-label">Partners</div><div class="kpi-value" id="kpi-prod-partners">—</div><div class="kpi-sub"><b>active lenders</b></div></div>
+        </div>
+        <div class="card anim d3">
+          <div class="card-header"><span class="card-title">Lending Products</span><button class="btn btn-primary btn-sm" onclick="openModal('modal-add-product')">+ New Product</button></div>
+          <table><thead><tr><th>Product Name</th><th>Product Ref</th><th>Partner</th><th>Loan Limit (KES)</th><th>Default Rate</th><th>Transaction Charge</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="products-tbody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- VIEW: KYC -->
+      <div id="view-kyc" class="content" style="display:none;">
+        <div class="kpi-grid three anim">
+          <div class="kpi d1"><div class="kpi-label">KYC Document Types</div><div class="kpi-value" id="kpi-kyc-total">—</div><div class="kpi-sub"><b>configured</b></div></div>
+          <div class="kpi d2"><div class="kpi-label">Required Docs</div><div class="kpi-value" id="kpi-kyc-req">—</div><div class="kpi-sub"><b>mandatory</b></div></div>
+          <div class="kpi d3"><div class="kpi-label">Optional Docs</div><div class="kpi-value" id="kpi-kyc-opt">—</div><div class="kpi-sub"><b>supplementary</b></div></div>
+        </div>
+        <div class="card anim d3">
+          <div class="card-header"><span class="card-title">KYC Document Registry</span><button class="btn btn-primary btn-sm" onclick="openModal('modal-add-kyc')">+ Add KYC Type</button></div>
+          <table><thead><tr><th>Document Type</th><th>Unique Code</th><th>Required</th><th>Description</th><th>Actions</th></tr></thead>
+          <tbody id="kyc-tbody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- VIEW: PROFILES -->
+      <div id="view-profiles" class="content" style="display:none;">
+        <div class="kpi-grid anim">
+          <div class="kpi d1"><div class="kpi-label">Total Profiles</div><div class="kpi-value" id="kpi-prof-total">—</div><div class="kpi-sub"><b>registered</b></div></div>
+          <div class="kpi d2"><div class="kpi-label">Complete KYC</div><div class="kpi-value" id="kpi-prof-kyc">—</div><div class="kpi-sub"><b>verified</b></div></div>
+          <div class="kpi d3"><div class="kpi-label">New This Month</div><div class="kpi-value" id="kpi-prof-new">—</div><div class="kpi-sub"><b>onboarded</b></div></div>
+          <div class="kpi d4"><div class="kpi-label">Avg Loan Limit</div><div class="kpi-value" id="kpi-prof-limit">—</div><div class="kpi-sub"><b>KES allocated</b></div></div>
+        </div>
+        <div class="card anim d3">
+          <div class="card-header">
+            <span class="card-title">Borrower Profiles</span>
+            <div class="search-box"><span>🔍</span><input type="text" placeholder="Search profiles…" oninput="filterProfiles(this.value)"></div>
+          </div>
+          <table><thead><tr><th>Account Ref</th><th>Name</th><th>Phone</th><th>Distributor</th><th>Loan Limit (KES)</th><th>CentyCred</th><th>Created On</th><th>Action</th></tr></thead>
+          <tbody id="profiles-tbody"></tbody></table>
+          <div id="profiles-pagination"></div>
+        </div>
+      </div>
+
+      <!-- VIEW: SMS -->
+      <div id="view-sms" class="content" style="display:none;">
+        <div class="kpi-grid anim">
+          <div class="kpi d1"><div class="kpi-label">Templates</div><div class="kpi-value" id="kpi-sms-tmpl">—</div><div class="kpi-sub"><b>configured</b></div></div>
+          <div class="kpi d2"><div class="kpi-label">Sent Today</div><div class="kpi-value" id="kpi-sms-today">—</div><div class="kpi-sub"><b>messages out</b></div></div>
+          <div class="kpi d3"><div class="kpi-label">Scheduled</div><div class="kpi-value" id="kpi-sms-sched">—</div><div class="kpi-sub warn"><b>queued</b></div></div>
+          <div class="kpi d4"><div class="kpi-label">Delivery Rate</div><div class="kpi-value" id="kpi-sms-rate">—</div><div class="kpi-sub"><b>success %</b></div></div>
+        </div>
+        <div class="card anim d3">
+          <div class="card-header">
+            <span class="card-title">SMS Communication Centre</span>
+            <button class="btn btn-ghost btn-sm" onclick="openModal('modal-send-sms')">📤 Send SMS</button>
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-add-sms')">+ New Template</button>
+          </div>
+          <div class="tabs">
+            <div class="tab active" onclick="setSmsTab('templates',this)">Templates</div>
+            <div class="tab" onclick="setSmsTab('scheduled',this)">Scheduled</div>
+            <div class="tab" onclick="setSmsTab('sent',this)">Sent Log</div>
+          </div>
+          <div id="sms-panel-templates"><table><thead><tr><th>Template Name</th><th>Category</th><th>Template Body</th><th>Status</th><th>Actions</th></tr></thead><tbody id="sms-tmpl-tbody"></tbody></table></div>
+          <div id="sms-panel-scheduled" style="display:none;"><table><thead><tr><th>Recipient</th><th>Template</th><th>Scheduled For</th><th>Status</th><th>Action</th></tr></thead><tbody id="sms-sched-tbody"></tbody></table></div>
+          <div id="sms-panel-sent" style="display:none;"><table><thead><tr><th>Recipient</th><th>Message</th><th>Sent At</th><th>Status</th></tr></thead><tbody id="sms-sent-tbody"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- VIEW: DMS -->
+      <div id="view-dms" class="content" style="display:none;">
+        <div class="page-head"><h2>Data Refresh Wizard</h2><p>Upload distributor data to sync borrower and repayment records</p></div>
+        <div class="card anim d2" style="padding:28px;margin-bottom:20px;">
+          <div class="wizard-steps" id="dms-wizard-steps">
+            <div class="wizard-step"><div class="step-circle active" id="dms-step-1">1</div><div class="step-label active" id="dms-lbl-1">Upload Excel</div></div>
+            <div class="step-line" id="dms-line-1"></div>
+            <div class="wizard-step"><div class="step-circle" id="dms-step-2">2</div><div class="step-label" id="dms-lbl-2">Confirm Output</div></div>
+            <div class="step-line" id="dms-line-2"></div>
+            <div class="wizard-step"><div class="step-circle" id="dms-step-3">3</div><div class="step-label" id="dms-lbl-3">View Results</div></div>
+          </div>
+          <div id="dms-step-panel-1">
+            <div class="upload-zone" onclick="dmsUploadClick()">
+              <div class="upload-zone-icon">📂</div>
+              <div class="upload-zone-text">Drop your Excel file here, or click to browse</div>
+              <div class="upload-zone-sub">Supports .xlsx, .xls — max 25MB</div>
+            </div>
+            <div style="margin-top:16px;display:flex;justify-content:flex-end;"><button class="btn btn-primary" onclick="dmsNext(2)">Continue →</button></div>
+          </div>
+          <div id="dms-step-panel-2" style="display:none;">
+            <div class="info-msg">📋 Preview: 247 rows detected across 3 sheets. Review before importing.</div>
+            <table><thead><tr><th>#</th><th>Borrower Name</th><th>KE Number</th><th>Amount (KES)</th><th>M-Pesa Code</th><th>Date</th></tr></thead><tbody>
+              <tr><td class="mono">1</td><td class="name">Grace Wanjiku</td><td class="mono">KE-0041</td><td class="mono">12,500</td><td class="mono">RA4X9KL2MT</td><td class="mono">13 Mar 2026</td></tr>
+              <tr><td class="mono">2</td><td class="name">Peter Kamau</td><td class="mono">KE-0087</td><td class="mono">8,000</td><td class="mono">SB7Y2WK5NR</td><td class="mono">13 Mar 2026</td></tr>
+              <tr><td class="mono">3</td><td class="name">Faith Njeri</td><td class="mono">KE-0112</td><td class="mono">15,000</td><td class="mono">TC9Z4VM8PQ</td><td class="mono">12 Mar 2026</td></tr>
+            </tbody></table>
+            <div style="margin-top:16px;display:flex;justify-content:space-between;">
+              <button class="btn btn-ghost" onclick="dmsNext(1)">← Back</button>
+              <button class="btn btn-primary" onclick="dmsNext(3)">Import Data →</button>
+            </div>
+          </div>
+          <div id="dms-step-panel-3" style="display:none;">
+            <div style="text-align:center;padding:24px 0;">
+              <div style="font-size:40px;margin-bottom:12px;">✅</div>
+              <div style="font-size:var(--t-label);font-weight:600;color:var(--text);margin-bottom:6px;">Import Successful</div>
+              <div style="font-size:var(--t-small);color:var(--text3);">247 records processed • 241 matched • 6 flagged for review</div>
+            </div>
+            <div style="display:flex;justify-content:center;gap:10px;margin-top:8px;">
+              <button class="btn btn-ghost" onclick="dmsReset()">Start New Import</button>
+              <button class="btn btn-primary" onclick="showView('mpesa')">View Payments →</button>
+            </div>
+          </div>
+        </div>
+        <div class="card anim d4">
+          <div class="card-header"><span class="card-title">Recent Refresh History</span></div>
+          <table><thead><tr><th>Date</th><th>File</th><th>Records</th><th>Matched</th><th>Flagged</th><th>Status</th><th>By</th></tr></thead>
+          <tbody id="dms-history-tbody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- VIEW: SETTINGS -->
+      <div id="view-settings" class="content" style="display:none;">
+        <div class="page-head"><h2>Settings</h2><p>Configure your LMS environment, integrations, and preferences.</p></div>
+        <div class="db-grid two anim d2" style="margin-bottom:12px;">
+          <div class="ch">
+            <div class="ch-head"><div><div class="ch-title">Organisation</div><div class="ch-sub">Company identity and branding</div></div></div>
+            <div class="ch-body">
+              <div class="field"><label>Company Name</label><input type="text" value="CentyCapital Ltd"></div>
+              <div class="field"><label>Primary Currency</label><select><option selected>KES — Kenyan Shilling</option><option>USD — US Dollar</option></select></div>
+              <div class="field" style="margin-bottom:0;"><label>M-Pesa Paybill</label><input type="text" value="891234"></div>
+            </div>
+          </div>
+          <div class="ch">
+            <div class="ch-head"><div><div class="ch-title">Integrations</div><div class="ch-sub">API and external service connections</div></div></div>
+            <div class="ch-body">
+              <div style="display:flex;flex-direction:column;gap:10px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--surface2);border-radius:var(--r);border:1px solid var(--border);">
+                  <div><div style="font-size:var(--t-body);font-weight:500">M-Pesa Daraja API</div><div style="font-size:var(--t-small);color:var(--text3)">Sandbox mode active</div></div>
+                  <span class="badge amber">Sandbox</span>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--surface2);border-radius:var(--r);border:1px solid var(--border);">
+                  <div><div style="font-size:var(--t-body);font-weight:500">ERPNext Backend</div><div style="font-size:var(--t-small);color:var(--text3)">Point to real API when ready</div></div>
+                  <span class="badge gray">Not connected</span>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--surface2);border-radius:var(--r);border:1px solid var(--border);">
+                  <div><div style="font-size:var(--t-body);font-weight:500">Africa's Talking SMS</div><div style="font-size:var(--t-small);color:var(--text3)">Delivery rate: 98.2%</div></div>
+                  <span class="badge green">Connected</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card anim d3" style="padding:20px;">
+          <div style="font-size:var(--t-label);font-weight:600;margin-bottom:4px;">Danger Zone</div>
+          <div style="font-size:var(--t-small);color:var(--text3);margin-bottom:16px;">Irreversible actions — proceed with caution.</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn-danger" onclick="resetAllData()">Reset All Data</button>
+            <button class="btn btn-ghost" onclick="toast('Export initiated — check your downloads','info')">Export Full Database</button>
+          </div>
+        </div>
+
+        <!-- VIEW: REPORTS -->
+        <div id="view-reports" class="content" style="display:none;">
+          <div class="page-head anim d1"><h2>Reports</h2><p>Portfolio analytics — PAR tracking, disbursement history and collection efficiency.</p></div>
+          <div class="tabs anim d2">
+            <div class="tab active" data-tab="par" onclick="setReportsTab('par',this)">PAR Report</div>
+            <div class="tab" data-tab="disbursement" onclick="setReportsTab('disbursement',this)">Disbursements</div>
+            <div class="tab" data-tab="collection" onclick="setReportsTab('collection',this)">Collection</div>
+          </div>
+
+          <!-- PAR Panel -->
+          <div id="rpt-panel-par">
+            <div class="kpi-grid anim d3">
+              <div class="kpi d1"><div class="kpi-label">Active Loan Book</div><div class="kpi-value" id="rpt-par-book">—</div></div>
+              <div class="kpi d2"><div class="kpi-label">At Risk (KES)</div><div class="kpi-value" id="rpt-par-at-risk">—</div></div>
+              <div class="kpi d3"><div class="kpi-label">PAR Rate</div><div class="kpi-value" id="rpt-par-pct">—</div></div>
+              <div class="kpi d4"><div class="kpi-label">Overdue Loans</div><div class="kpi-value" id="rpt-par-count">—</div></div>
+            </div>
+            <div class="card anim d4">
+              <div class="card-head"><span class="card-title">Overdue Loan Register</span><button class="btn btn-ghost btn-sm" onclick="exportCsv('loans')">↓ Export</button></div>
+              <table><thead><tr><th>Loan Ref</th><th>Borrower</th><th>Principal (KES)</th><th>Repayment (KES)</th><th>Overdue Bucket</th><th>Status</th><th>Action</th></tr></thead>
+              <tbody id="rpt-par-body"></tbody></table>
+            </div>
+          </div>
+
+          <!-- Disbursement Panel -->
+          <div id="rpt-panel-disbursement" style="display:none;">
+            <div class="kpi-grid anim d3">
+              <div class="kpi d1"><div class="kpi-label">Total Disbursed</div><div class="kpi-value" id="rpt-disb-total">—</div></div>
+              <div class="kpi d2"><div class="kpi-label">Total Loans</div><div class="kpi-value" id="rpt-disb-count">—</div></div>
+              <div class="kpi d3"><div class="kpi-label">Avg Loan Size</div><div class="kpi-value" id="rpt-disb-avg">—</div></div>
+              <div class="kpi d4"><div class="kpi-label">Active Products</div><div class="kpi-value" id="rpt-disb-prods">—</div></div>
+            </div>
+            <div class="card anim d4">
+              <div class="card-head"><span class="card-title">Monthly Disbursement Summary</span><button class="btn btn-ghost btn-sm" onclick="exportCsv('loans')">↓ Export</button></div>
+              <table><thead><tr><th>Month</th><th>Loans</th><th>Total (KES)</th><th>Avg Size (KES)</th><th>Volume</th></tr></thead>
+              <tbody id="rpt-disb-body"></tbody></table>
+            </div>
+          </div>
+
+          <!-- Collection Panel -->
+          <div id="rpt-panel-collection" style="display:none;">
+            <div class="kpi-grid anim d3">
+              <div class="kpi d1"><div class="kpi-label">Total Repayments Due</div><div class="kpi-value" id="rpt-coll-due">—</div></div>
+              <div class="kpi d2"><div class="kpi-label">Collected (KES)</div><div class="kpi-value" id="rpt-coll-collected">—</div></div>
+              <div class="kpi d3"><div class="kpi-label">Collection Rate</div><div class="kpi-value" id="rpt-coll-rate">—</div></div>
+              <div class="kpi d4"><div class="kpi-label">Outstanding Gap</div><div class="kpi-value" id="rpt-coll-gap">—</div></div>
+            </div>
+            <div class="card anim d4">
+              <div class="card-head"><span class="card-title">M-Pesa Collection Log</span><button class="btn btn-ghost btn-sm" onclick="exportCsv('mpesa')">↓ Export</button></div>
+              <table><thead><tr><th>Date</th><th>Phone</th><th>Amount (KES)</th><th>M-Pesa Code</th><th>Loan Ref</th><th>Status</th></tr></thead>
+              <tbody id="rpt-coll-body"></tbody></table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- BORROWER DRAWER -->
+  <div class="drawer-overlay" id="borrower-overlay" onclick="closeDrawer('borrower')"></div>
+  <div class="drawer" id="borrower-drawer">
+    <div class="drawer-head">
+      <div>
+        <div style="font-size:var(--t-label);font-weight:600;color:var(--text);" id="bd-name">—</div>
+        <div style="font-size:var(--t-small);color:var(--text3);margin-top:2px;" id="bd-ref">—</div>
+      </div>
+      <div id="bd-status-badge" style="margin-left:8px;"></div>
+      <div class="drawer-close" onclick="closeDrawer('borrower')">✕</div>
+    </div>
+    <div class="drawer-tabs">
+      <div class="drawer-tab active" onclick="setBwrDrawerTab('details',this)">Details</div>
+      <div class="drawer-tab" onclick="setBwrDrawerTab('loans',this)">Loans</div>
+      <div class="drawer-tab" onclick="setBwrDrawerTab('kyc',this)">KYC Documents</div>
+      <div class="drawer-tab" onclick="setBwrDrawerTab('messages',this)">Messages</div>
+    </div>
+    <div class="drawer-body">
+      <div id="bdtab-details">
+        <div class="drawer-section">
+          <div class="drawer-section-title">Personal Information</div>
+          <div class="detail-grid">
+            <div class="detail-item"><label>Full Name</label><div class="val" id="bd-fullname">—</div></div>
+            <div class="detail-item"><label>Phone</label><div class="val mono" id="bd-phone">—</div></div>
+            <div class="detail-item"><label>National ID</label><div class="val mono" id="bd-id">—</div></div>
+            <div class="detail-item"><label>KE Number</label><div class="val mono" id="bd-ke">—</div></div>
+            <div class="detail-item"><label>Location</label><div class="val" id="bd-location">—</div></div>
+            <div class="detail-item"><label>Distributor</label><div class="val" id="bd-distributor">—</div></div>
+          </div>
+        </div>
+        <div class="drawer-section">
+          <div class="drawer-section-title">Business Information</div>
+          <div class="detail-grid">
+            <div class="detail-item"><label>Business Name</label><div class="val" id="bd-biz">—</div></div>
+            <div class="detail-item"><label>Business Type</label><div class="val" id="bd-biz-type">—</div></div>
+            <div class="detail-item"><label>Loan Limit (KES)</label><div class="val mono" id="bd-limit">—</div></div>
+            <div class="detail-item"><label>CentyCred Score</label><div class="val" id="bd-score-display">—</div></div>
+          </div>
+        </div>
+        <div class="drawer-section">
+          <div class="drawer-section-title">Referee</div>
+          <div class="detail-grid">
+            <div class="detail-item"><label>Referee Name</label><div class="val" id="bd-ref-name">—</div></div>
+            <div class="detail-item"><label>Referee Phone</label><div class="val mono" id="bd-ref-phone">—</div></div>
+            <div class="detail-item"><label>Relationship</label><div class="val" id="bd-ref-rel">—</div></div>
+          </div>
+        </div>
+      </div>
+      <div id="bdtab-loans" style="display:none;">
+        <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:flex-end;"><button class="btn btn-primary btn-sm" onclick="openModal('modal-new-loan')">+ New Loan</button></div>
+        <table><thead><tr><th>Loan Ref</th><th>Amount (KES)</th><th>Status</th><th>Disbursed</th><th>Due Date</th><th>Action</th></tr></thead><tbody id="bd-loans-tbody"><tr class="empty-row"><td colspan="6">No loans found for this borrower</td></tr></tbody></table>
+      </div>
+      <div id="bdtab-kyc" style="display:none;">
+        <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:flex-end;"><button class="btn btn-primary btn-sm" onclick="toast('Upload KYC document','info')">↑ Upload Document</button></div>
+        <div id="bd-kyc-list" style="padding:16px 20px;"></div>
+      </div>
+      <div id="bdtab-messages" style="display:none;">
+        <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:flex-end;"><button class="btn btn-primary btn-sm" onclick="openModal('modal-send-sms')">📤 Send SMS</button></div>
+        <div style="padding:16px 20px;">
+          <div class="comment-item"><div class="comment-meta"><span class="comment-author">System</span><span class="comment-time">13 Mar 2026 09:14</span></div><div class="comment-text">Disbursement of KES 30,000 completed via M-Pesa B2C.</div></div>
+          <div class="comment-item"><div class="comment-meta"><span class="comment-author">Edwin M</span><span class="comment-time">12 Mar 2026 14:32</span></div><div class="comment-text">Borrower confirmed receipt of funds. Loan terms explained.</div></div>
+          <div class="comment-item"><div class="comment-meta"><span class="comment-author">System</span><span class="comment-time">10 Mar 2026 08:00</span></div><div class="comment-text">Reminder SMS sent — payment due in 5 days.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOAN DRAWER -->
+  <div class="drawer-overlay" id="loan-overlay" onclick="closeDrawer('loan')"></div>
+  <div class="drawer" id="loan-drawer" style="width:580px;">
+    <div class="drawer-head">
+      <div>
+        <div style="font-size:var(--t-label);font-weight:600;color:var(--text);" id="ld-ref">—</div>
+        <div style="font-size:var(--t-small);color:var(--text3);margin-top:2px;" id="ld-borrower">—</div>
+      </div>
+      <div id="ld-status-badge" style="margin-left:8px;"></div>
+      <div class="drawer-close" onclick="closeDrawer('loan')">✕</div>
+    </div>
+    <div class="drawer-tabs">
+      <div class="drawer-tab active" onclick="setLoanDrawerTab('details',this)">Loan Details</div>
+      <div class="drawer-tab" onclick="setLoanDrawerTab('repayments',this)">Repayments</div>
+      <div class="drawer-tab" onclick="setLoanDrawerTab('comments',this)">Comments</div>
+      <div class="drawer-tab" onclick="setLoanDrawerTab('ptps',this)">PTPs</div>
+    </div>
+    <div class="drawer-body">
+      <div id="ldtab-details">
+        <div class="drawer-section">
+          <div class="drawer-section-title">Loan Information</div>
+          <div class="detail-grid three">
+            <div class="detail-item"><label>Loan Ref</label><div class="val mono" id="ld-loan-ref">—</div></div>
+            <div class="detail-item"><label>Amount (KES)</label><div class="val mono" id="ld-amount">—</div></div>
+            <div class="detail-item"><label>Interest Rate</label><div class="val" id="ld-rate">—</div></div>
+            <div class="detail-item"><label>Disbursed</label><div class="val mono" id="ld-disbursed">—</div></div>
+            <div class="detail-item"><label>Due Date</label><div class="val mono" id="ld-due">—</div></div>
+            <div class="detail-item"><label>Repayment (KES)</label><div class="val mono" id="ld-repayment">—</div></div>
+            <div class="detail-item"><label>Product</label><div class="val" id="ld-product">—</div></div>
+            <div class="detail-item"><label>Partner</label><div class="val" id="ld-partner">—</div></div>
+            <div class="detail-item"><label>KE Number</label><div class="val mono" id="ld-ke">—</div></div>
+          </div>
+        </div>
+        <div class="drawer-section">
+          <div class="drawer-section-title">VSM & Collection</div>
+          <div class="detail-grid">
+            <div class="detail-item"><label>VSM Till Number</label><div class="val mono" id="ld-till">—</div></div>
+            <div class="detail-item"><label>Collection Mode</label><div class="val" id="ld-mode">—</div></div>
+          </div>
+        </div>
+        <div class="drawer-section" style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-ghost btn-sm" onclick="printStatement(_currentLoanRef)">📄 Statement</button>
+          <button class="btn btn-ghost btn-sm" onclick="toast('Restructure loan flow initiated','info')">🔧 Restructure</button>
+          <button class="btn btn-danger btn-sm" id="ld-writeoff-btn" onclick="writeOffLoan(_currentLoanRef)">⛔ Write Off</button>
+        </div>
+      </div>
+      <div id="ldtab-repayments" style="display:none;">
+        <table><thead><tr><th>Date</th><th>Amount (KES)</th><th>M-Pesa Code</th><th>Mode</th><th>Status</th></tr></thead><tbody id="ld-repayments-tbody"></tbody></table>
+      </div>
+      <div id="ldtab-comments" style="display:none;">
+        <div style="padding:14px 16px;border-bottom:1px solid var(--border);">
+          <textarea id="ld-comment-input" class="field" style="margin:0;" placeholder="Add a comment…" rows="2"></textarea>
+          <div style="display:flex;justify-content:flex-end;margin-top:8px;"><button class="btn btn-primary btn-sm" onclick="postComment(_currentLoanRef)">Post Comment</button></div>
+        </div>
+        <div style="padding:16px 20px;" id="ld-comments-list"></div>
+      </div>
+      <div id="ldtab-ptps" style="display:none;">
+        <div style="padding:14px 16px;border-bottom:1px solid var(--border);">
+          <div class="field-row">
+            <div class="field" style="margin-bottom:0;"><label>Promise Date</label><input type="date" id="ld-ptp-date"></div>
+            <div class="field" style="margin-bottom:0;"><label>Amount (KES)</label><input type="number" id="ld-ptp-amount" placeholder="15000"></div>
+          </div>
+          <div class="field" style="margin:10px 0 8px;"><label>Notes</label><textarea id="ld-ptp-notes" rows="1" placeholder="Context for this promise…" style="min-height:36px;"></textarea></div>
+          <div style="display:flex;justify-content:flex-end;"><button class="btn btn-primary btn-sm" onclick="recordPtp(_currentLoanRef)">+ Record PTP</button></div>
+        </div>
+        <table><thead><tr><th>Promise Date</th><th>Amount (KES)</th><th>Status</th><th>Notes</th></tr></thead><tbody id="ld-ptps-tbody"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- APPLICATION DRAWER -->
+  <div class="drawer-overlay" id="app-overlay" onclick="closeDrawer('app')"></div>
+  <div class="drawer" id="app-drawer" style="width:520px;">
+    <div class="drawer-head">
+      <div>
+        <div style="font-size:var(--t-label);font-weight:600;color:var(--text);" id="apd-ref">—</div>
+        <div style="font-size:var(--t-small);color:var(--text3);margin-top:2px;" id="apd-borrower">—</div>
+      </div>
+      <div id="apd-status-badge" style="margin-left:8px;"></div>
+      <div class="drawer-close" onclick="closeDrawer('app')">✕</div>
+    </div>
+    <div class="drawer-body">
+      <div class="drawer-section">
+        <div class="drawer-section-title">Application Details</div>
+        <div class="detail-grid three">
+          <div class="detail-item"><label>Amount (KES)</label><div class="val mono" id="apd-amount">—</div></div>
+          <div class="detail-item"><label>Interest Rate</label><div class="val" id="apd-rate">—</div></div>
+          <div class="detail-item"><label>Product</label><div class="val" id="apd-product">—</div></div>
+          <div class="detail-item"><label>Partner</label><div class="val" id="apd-partner">—</div></div>
+          <div class="detail-item"><label>Applied On</label><div class="val mono" id="apd-applied">—</div></div>
+        </div>
+      </div>
+      <div class="drawer-section" id="apd-actions-section"></div>
+    </div>
+  </div>
+
+  </div><!-- /app-shell -->
+
+  <!-- MODALS (outside shell so they overlay everything) -->
+  <div class="modal-overlay" id="modal-add-lead">
+    <div class="modal">
+      <div class="modal-head"><span class="modal-title">Add New Lead</span><div class="drawer-close" onclick="closeModal('modal-add-lead')">✕</div></div>
+      <div class="modal-body">
+        <div class="field-row">
+          <div class="field"><label>Full Name <span style="color:var(--rose)">*</span></label><input type="text" id="f-lead-name" placeholder="e.g. Grace Wanjiku"><span class="field-error" id="f-lead-name-err"></span></div>
+          <div class="field"><label>Phone Number <span style="color:var(--rose)">*</span></label><input type="text" id="f-lead-phone" placeholder="0712 345 678"><span class="field-error" id="f-lead-phone-err"></span></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Business Name</label><input type="text" id="f-lead-biz" placeholder="e.g. Grace Wines & Spirits"></div>
+          <div class="field"><label>Location</label><input type="text" id="f-lead-location" placeholder="e.g. Westlands, Nairobi"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Distributor</label><select id="f-lead-distributor"><option value="CentyDist Nairobi">CentyDist Nairobi</option><option value="CentyDist Kisumu">CentyDist Kisumu</option><option value="CentyDist Mombasa">CentyDist Mombasa</option><option value="CentyDist Nakuru">CentyDist Nakuru</option><option value="CentyDist Eldoret">CentyDist Eldoret</option></select></div>
+          <div class="field"><label>Source</label><select id="f-lead-source"><option value="Field Agent">Field Agent</option><option value="Referral">Referral</option><option value="WhatsApp">WhatsApp</option><option value="Walk-in">Walk-in</option></select></div>
+        </div>
+        <div class="field"><label>Notes</label><textarea id="f-lead-notes" placeholder="Additional details about this lead…"></textarea></div>
+      </div>
+      <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('modal-add-lead')">Cancel</button><button class="btn btn-primary" onclick="submitAddLead()">Add Lead</button></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-add-borrower">
+    <div class="modal">
+      <div class="modal-head"><span class="modal-title">Register New Borrower</span><div class="drawer-close" onclick="closeModal('modal-add-borrower')">✕</div></div>
+      <div class="modal-body">
+        <div class="field-row">
+          <div class="field"><label>Full Name <span style="color:var(--rose)">*</span></label><input type="text" id="f-bwr-name" placeholder="Full legal name"><span class="field-error" id="f-bwr-name-err"></span></div>
+          <div class="field"><label>Phone Number <span style="color:var(--rose)">*</span></label><input type="text" id="f-bwr-phone" placeholder="0712 345 678"><span class="field-error" id="f-bwr-phone-err"></span></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>National ID</label><input type="text" id="f-bwr-natid" placeholder="ID number"></div>
+          <div class="field"><label>KE Number</label><input type="text" id="f-bwr-ke" placeholder="KE-XXXX"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Business Name</label><input type="text" id="f-bwr-biz"></div>
+          <div class="field"><label>Business Type</label><select id="f-bwr-biztype"><option value="Retailer">Retailer</option><option value="Wholesaler">Wholesaler</option><option value="Agrovet">Agrovet</option><option value="Kiosk">Kiosk</option><option value="Salon">Salon</option></select></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Location</label><input type="text" id="f-bwr-location"></div>
+          <div class="field"><label>Loan Limit (KES) <span style="color:var(--rose)">*</span></label><input type="number" id="f-bwr-limit" placeholder="50000"><span class="field-error" id="f-bwr-limit-err"></span></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Referee Name</label><input type="text" id="f-bwr-refname"></div>
+          <div class="field"><label>Referee Phone</label><input type="text" id="f-bwr-refphone"></div>
+        </div>
+      </div>
+      <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('modal-add-borrower')">Cancel</button><button class="btn btn-primary" onclick="submitAddBorrower()">Register Borrower</button></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-new-loan">
+    <div class="modal">
+      <div class="modal-head"><span class="modal-title">Create Loan Application</span><div class="drawer-close" onclick="closeModal('modal-new-loan')">✕</div></div>
+      <div class="modal-body">
+        <div class="field"><label>Borrower <span style="color:var(--rose)">*</span></label><input type="text" id="f-loan-borrower" placeholder="Search borrower name…"><span class="field-error" id="f-loan-borrower-err"></span></div>
+        <div class="field-row">
+          <div class="field"><label>Loan Amount (KES) <span style="color:var(--rose)">*</span></label><input type="number" id="f-loan-amount" placeholder="30000" oninput="calcLoanPreview()"><span class="field-error" id="f-loan-amount-err"></span></div>
+          <div class="field"><label>Product</label><select id="f-loan-product"><option value="CentyFlex 30">CentyFlex 30</option><option value="CentyGrowth 60">CentyGrowth 60</option><option value="CentyBoost 90">CentyBoost 90</option><option value="CentyPro 120">CentyPro 120</option><option value="CentyMicro 14">CentyMicro 14</option></select></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Interest Rate (%/mo)</label><input type="number" id="f-loan-rate" placeholder="5" oninput="calcLoanPreview()"></div>
+          <div class="field"><label>Tenor (days)</label><input type="number" id="f-loan-tenor" placeholder="30" oninput="calcLoanPreview()"></div>
+        </div>
+        <!-- Loan Repayment Calculator Preview -->
+        <div class="calc-preview" id="loan-calc-preview">
+          <div style="font-size:10px;font-weight:700;color:var(--green-dk);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Repayment Preview</div>
+          <div class="calc-grid">
+            <div class="calc-item"><label>Principal</label><div class="calc-val" id="calc-principal">—</div></div>
+            <div class="calc-item"><label>Interest</label><div class="calc-val" id="calc-interest">—</div></div>
+            <div class="calc-item"><label>Total Due</label><div class="calc-val" id="calc-total">—</div></div>
+          </div>
+        </div>
+        <div class="field"><label>Disbursement Method</label><select><option>M-Pesa B2C</option><option>Bank Transfer</option><option>Cash</option></select></div>
+        <div class="field"><label>Notes</label><textarea id="f-loan-notes" placeholder="Loan purpose, guarantor details…" rows="2"></textarea></div>
+      </div>
+      <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('modal-new-loan')">Cancel</button><button class="btn btn-primary" onclick="submitNewLoan()">Submit Application</button></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-add-product">
+    <div class="modal">
+      <div class="modal-head"><span class="modal-title">New Lending Product</span><div class="drawer-close" onclick="closeModal('modal-add-product')">✕</div></div>
+      <div class="modal-body">
+        <div class="field-row">
+          <div class="field"><label>Product Name <span style="color:var(--rose)">*</span></label><input type="text" id="f-prod-name" placeholder="e.g. CentyFlex 30"></div>
+          <div class="field"><label>Product Ref</label><input type="text" id="f-prod-ref" placeholder="PROD-XXX"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Partner / Lender</label><input type="text" id="f-prod-partner" placeholder="e.g. Centum MFI"></div>
+          <div class="field"><label>Loan Limit (KES)</label><input type="number" id="f-prod-limit" placeholder="100000"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Default Interest Rate (%)</label><input type="number" id="f-prod-rate" placeholder="5"></div>
+          <div class="field"><label>Transaction Charge (KES)</label><input type="number" id="f-prod-charge" placeholder="200"></div>
+        </div>
+      </div>
+      <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('modal-add-product')">Cancel</button><button class="btn btn-primary" onclick="submitAddProduct()">Create Product</button></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-add-kyc">
+    <div class="modal" style="width:400px;">
+      <div class="modal-head"><span class="modal-title">Add KYC Document Type</span><div class="drawer-close" onclick="closeModal('modal-add-kyc')">✕</div></div>
+      <div class="modal-body">
+        <div class="field"><label>Document Type <span style="color:var(--rose)">*</span></label><input type="text" id="f-kyc-type" placeholder="e.g. Business Permit"></div>
+        <div class="field"><label>Unique Code <span style="color:var(--rose)">*</span></label><input type="text" id="f-kyc-code" placeholder="e.g. BIZ_PERMIT"></div>
+        <div class="field"><label>Required?</label><select id="f-kyc-required"><option value="yes">Yes — Mandatory</option><option value="no">No — Optional</option></select></div>
+        <div class="field"><label>Description</label><textarea id="f-kyc-desc" placeholder="What this document verifies…" rows="2"></textarea></div>
+      </div>
+      <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('modal-add-kyc')">Cancel</button><button class="btn btn-primary" onclick="submitAddKyc()">Add</button></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-add-sms">
+    <div class="modal">
+      <div class="modal-head"><span class="modal-title">New SMS Template</span><div class="drawer-close" onclick="closeModal('modal-add-sms')">✕</div></div>
+      <div class="modal-body">
+        <div class="field"><label>Template Name</label><input type="text" placeholder="e.g. Overdue Day 3 Reminder"></div>
+        <div class="field-row">
+          <div class="field"><label>Category</label><select><option>Debt Collection</option><option>Engagement</option><option>Disbursement</option><option>General</option></select></div>
+          <div class="field"><label>Status</label><select><option>Active</option><option>Draft</option></select></div>
+        </div>
+        <div class="field"><label>Template Body</label><textarea placeholder="Dear {name}, your loan of KES {amount} is due on {due_date}. Pay via M-Pesa…" rows="4"></textarea></div>
+        <div class="info-msg">Use {name}, {amount}, {due_date}, {loan_ref} as dynamic variables.</div>
+      </div>
+      <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('modal-add-sms')">Cancel</button><button class="btn btn-primary" onclick="closeModal('modal-add-sms');toast('SMS template saved','success')">Save Template</button></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-send-sms">
+    <div class="modal">
+      <div class="modal-head"><span class="modal-title">Send SMS</span><div class="drawer-close" onclick="closeModal('modal-send-sms')">✕</div></div>
+      <div class="modal-body">
+        <div class="field"><label>Recipients</label><select><option>All Active Borrowers</option><option>Overdue Borrowers</option><option>Specific Borrower…</option><option>Paste phone numbers</option></select></div>
+        <div class="field"><label>Template</label><select><option value="">Select template…</option><option>Payment Reminder</option><option>Overdue Day 3</option><option>Disbursement Confirm</option></select></div>
+        <div class="field"><label>Custom Message (optional)</label><textarea placeholder="Override template with custom message…" rows="3"></textarea></div>
+        <div class="field-row"><div class="field"><label>Send</label><select><option>Immediately</option><option>Schedule for later…</option></select></div></div>
+      </div>
+      <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('modal-send-sms')">Cancel</button><button class="btn btn-primary" onclick="closeModal('modal-send-sms');toast('SMS sent successfully','success')">Send SMS</button></div>
+    </div>
+  </div>
+
+  <!-- CONFIRM MODAL -->
+  <div class="modal-overlay" id="modal-confirm">
+    <div class="modal" style="width:420px;">
+      <div class="modal-head"><span class="modal-title">Confirm Action</span><div class="drawer-close" onclick="closeModal('modal-confirm')">✕</div></div>
+      <div class="modal-body" id="confirm-body"><p>Are you sure?</p></div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" onclick="closeModal('modal-confirm')">Cancel</button>
+        <button class="btn btn-danger" id="confirm-ok-btn" onclick="executeConfirm()">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRINT STATEMENT OVERLAY -->
+  <div id="print-statement"></div>
+
+  <div id="toast-container"></div>
+  <script src="/app.js?v=20260321-rbac1"></script>
+</body>
+</html>

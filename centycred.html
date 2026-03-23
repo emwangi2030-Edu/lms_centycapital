@@ -1,0 +1,1732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<base href="/">
+<title>CentyCred — CentyCapital LMS</title>
+<link rel="canonical" href="https://lms.centycapital.com/centycred">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+/* ─── CC UPLOAD ───────────────────────────────────────────────────────── */
+.cc-upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.cc-upload-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--r2);padding:1.25rem;cursor:pointer;transition:border-color .15s,box-shadow .15s;position:relative;}
+.cc-upload-card:hover,.cc-upload-card.ready{border-color:var(--green);box-shadow:0 0 0 3px var(--green-lt);}
+.cc-upload-card.drag{border-color:var(--green);border-style:dashed;background:var(--green-lt);}
+.cc-card-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;}
+.cc-card-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;}
+.cc-card-icon.green{background:var(--green-lt);}
+.cc-card-icon.blue{background:var(--blue-lt);}
+.cc-ready-tag{font-size:11px;padding:3px 9px;border-radius:20px;background:var(--surface2);border:1px solid var(--border);color:var(--text4);}
+.cc-ready-tag.ok{background:var(--green-lt);border-color:var(--green-mid);color:var(--green-dk);}
+.cc-card-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px;}
+.cc-card-hint{font-size:12px;color:var(--text3);line-height:1.6;margin-bottom:10px;}
+.cc-bank-pills{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;}
+.cc-pill{font-size:10px;padding:2px 7px;border-radius:20px;border:1px solid var(--border);color:var(--text4);background:var(--surface2);}
+.cc-drop-zone{border:1.5px dashed var(--border2);border-radius:var(--r);padding:18px;text-align:center;font-size:12px;color:var(--text4);background:var(--surface2);transition:all .15s;}
+.cc-upload-card:hover .cc-drop-zone,.cc-upload-card.ready .cc-drop-zone,.cc-upload-card.drag .cc-drop-zone{border-color:var(--green);color:var(--green);background:var(--green-lt);}
+.cc-file-list{display:flex;flex-direction:column;gap:5px;margin-top:8px;}
+.cc-file-item{display:flex;align-items:center;gap:8px;padding:5px 9px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;font-size:11px;color:var(--text2);}
+.cc-file-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;}
+.cc-file-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cc-file-rm{cursor:pointer;color:var(--text4);font-size:15px;line-height:1;padding:0 2px;transition:color .1s;}
+.cc-file-rm:hover{color:var(--red);}
+.cc-detect-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:8px 10px;margin-top:8px;}
+.cc-detect-row{display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:11px;}
+.cc-detect-row:last-child{border-bottom:none;}
+.cc-conf-badge{display:inline-flex;align-items:center;font-size:11px;padding:2px 8px;border-radius:20px;white-space:nowrap;}
+.cc-conf-badge.hi{background:var(--green-lt);color:var(--green-dk);}
+.cc-conf-badge.md{background:var(--amber-lt);color:var(--amber-dk);}
+.cc-override-link{font-size:11px;color:var(--amber);cursor:pointer;text-decoration:underline;margin-top:3px;display:inline-block;}
+.cc-override-row{display:none;gap:6px;margin-top:6px;align-items:center;}
+.cc-override-row.open{display:flex;}
+.cc-override-sel{flex:1;height:28px;border:1px solid var(--amber);border-radius:6px;background:var(--surface);color:var(--text);font-family:var(--sans);font-size:11px;padding:0 8px;}
+.cc-bottom-row{display:flex;gap:10px;}
+.cc-period-sel{height:40px;border:1px solid var(--border2);border-radius:var(--r);background:var(--surface);color:var(--text);font-family:var(--sans);font-size:13px;padding:0 12px;min-width:140px;}
+
+/* ─── CC PROCESSING ─────────────────────────────────────────────────── */
+.cc-spin{width:32px;height:32px;border:2.5px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:cc-rot .7s linear infinite;margin:0 auto 16px;}
+@keyframes cc-rot{to{transform:rotate(360deg);}}
+.cc-proc-steps{display:flex;flex-direction:column;gap:10px;text-align:left;margin-top:20px;max-width:420px;margin-left:auto;margin-right:auto;}
+.cc-proc-step{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--text4);transition:color .2s;}
+.cc-proc-step.active{color:var(--text);}
+.cc-proc-step.done{color:var(--green);}
+.cc-proc-dot{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;color:var(--text4);transition:all .2s;}
+.cc-proc-step.active .cc-proc-dot{border-color:var(--green);background:var(--green-lt);color:var(--green);}
+.cc-proc-step.done .cc-proc-dot{border-color:var(--green);background:var(--green);color:#fff;}
+
+/* ─── CC RESULT ──────────────────────────────────────────────────────── */
+.cc-result-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:1.25rem 1.5rem;margin-bottom:12px;display:flex;align-items:center;gap:20px;box-shadow:var(--shadow-md);}
+.cc-score-wrap{position:relative;width:96px;height:96px;flex-shrink:0;}
+.cc-score-label{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.cc-score-num{font-family:var(--serif);font-size:24px;font-weight:500;line-height:1;}
+.cc-score-max{font-size:10px;color:var(--text4);}
+.cc-result-info{flex:1;}
+.cc-result-name{font-size:17px;font-weight:600;color:var(--text);margin-bottom:3px;}
+.cc-result-meta{font-size:12px;color:var(--text3);margin-bottom:10px;}
+.cc-result-badges{display:flex;gap:6px;flex-wrap:wrap;}
+.cc-result-acts{display:flex;flex-direction:column;gap:6px;flex-shrink:0;}
+.cc-act-btn{height:32px;padding:0 14px;border-radius:var(--r);font-family:var(--sans);font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;transition:all .12s;}
+.cc-act-btn.primary{background:var(--green);border:none;color:#fff;}
+.cc-act-btn.primary:hover{background:var(--green-dk);}
+.cc-act-btn.ghost{background:var(--surface);border:1px solid var(--border2);color:var(--text2);}
+.cc-act-btn.ghost:hover{color:var(--text);border-color:var(--border2);}
+
+/* ─── CC RISK BARS ───────────────────────────────────────────────────── */
+.cc-risk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
+.cc-risk-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:12px 14px;}
+.cc-risk-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.cc-bar-track{height:5px;background:var(--surface2);border-radius:3px;margin-bottom:5px;overflow:hidden;}
+.cc-bar-fill{height:5px;border-radius:3px;}
+.cc-risk-val{font-size:11px;color:var(--text3);}
+
+/* ─── CC SPEND CATS ──────────────────────────────────────────────────── */
+.cc-cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
+.cc-cat-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:12px 14px;}
+.cc-cat-name{font-size:13px;font-weight:500;color:var(--text);margin-bottom:6px;}
+.cc-cat-bar{height:4px;background:var(--surface2);border-radius:2px;margin-bottom:6px;overflow:hidden;}
+.cc-cat-fill{height:4px;border-radius:2px;}
+.cc-cat-val{font-size:11px;color:var(--text3);}
+
+/* ─── CC MONTHLY TABLE ───────────────────────────────────────────────── */
+.cc-month-row{display:grid;grid-template-columns:55px 1fr 1fr 68px;gap:8px;font-size:12px;padding:8px 0;border-bottom:1px solid var(--border);align-items:center;}
+.cc-month-row:last-child{border-bottom:none;}
+.cc-month-row.hdr{font-size:10px;font-weight:600;color:var(--text4);text-transform:uppercase;letter-spacing:.06em;}
+.cc-mini-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:3px;}
+.cc-mini-fill{height:4px;border-radius:2px;}
+
+/* ─── CC HISTORY TABLE ───────────────────────────────────────────────── */
+.cc-hist-table{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;}
+.cc-hist-head,.cc-hist-row{display:grid;grid-template-columns:2fr .8fr .9fr .7fr .9fr 96px;border-bottom:1px solid var(--border);}
+.cc-hist-head{background:var(--surface2);}
+.cc-hist-row{transition:background .1s;cursor:pointer;}
+.cc-hist-row:last-child{border-bottom:none;}
+.cc-hist-row:hover{background:var(--surface2);}
+.cc-hist-hc{padding:10px 14px;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;}
+.cc-hist-cell{padding:12px 14px;font-size:13px;display:flex;align-items:center;}
+.cc-hist-av{width:30px;height:30px;border-radius:50%;background:var(--green-lt);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--green-dk);flex-shrink:0;}
+.cc-band-badge{display:inline-flex;align-items:center;font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px;}
+.cc-band-badge.A{background:var(--green-lt);color:var(--green-dk);}
+.cc-band-badge.B{background:#f0fdf4;color:#16a34a;}
+.cc-band-badge.C{background:var(--amber-lt);color:var(--amber-dk);}
+.cc-band-badge.D{background:var(--red-lt);color:var(--red);}
+.cc-risk-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px;flex-shrink:0;}
+.cc-risk-dot.low,.cc-risk-dot.minor{background:var(--green);}
+.cc-risk-dot.moderate{background:var(--amber);}
+.cc-risk-dot.high{background:var(--red);}
+
+/* ─── CC SETTINGS LAYOUT ─────────────────────────────────────────────── */
+.cc-settings-grid{display:grid;grid-template-columns:210px 1fr;gap:16px;align-items:start;}
+.cc-settings-nav{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;position:sticky;top:76px;}
+.cc-sni{padding:10px 1.25rem;font-size:13px;color:var(--text2);cursor:pointer;border-left:2px solid transparent;transition:all .12s;display:flex;align-items:center;gap:9px;}
+.cc-sni:hover{color:var(--text);background:var(--surface2);}
+.cc-sni.active{color:var(--green-dk);background:var(--green-lt);border-left-color:var(--green);font-weight:600;}
+.cc-sni svg{width:14px;height:14px;flex-shrink:0;}
+.cc-sni-divider{height:1px;background:var(--border);}
+.cc-settings-body{display:flex;flex-direction:column;gap:12px;}
+.cc-sec{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;}
+.cc-sec-head{padding:1rem 1.25rem;border-bottom:1px solid var(--border);}
+.cc-sec-title{font-size:14px;font-weight:600;color:var(--text);}
+.cc-sec-hint{font-size:12px;color:var(--text3);margin-top:2px;}
+.cc-sec-body{padding:1.25rem;}
+
+/* ─── CC WEIGHT ROWS ─────────────────────────────────────────────────── */
+.cc-weight-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);}
+.cc-weight-row:last-child{border-bottom:none;}
+.cc-weight-name{flex:1;font-size:13px;color:var(--text);}
+.cc-weight-bar-wrap{width:120px;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+.cc-weight-bar{height:6px;border-radius:3px;background:var(--green);transition:width .2s;}
+.cc-weight-input{width:52px;height:28px;border:1px solid var(--border2);border-radius:6px;font-size:12px;font-weight:600;text-align:center;color:var(--text);font-family:var(--mono);background:var(--surface);}
+.cc-weight-input:focus{outline:none;border-color:var(--green);}
+.cc-weight-total{display:flex;align-items:center;justify-content:space-between;padding:10px 0 0;border-top:1px solid var(--border);margin-top:4px;font-size:12px;color:var(--text3);}
+.cc-weight-total-val{font-weight:700;}
+.cc-weight-total-val.ok{color:var(--green);}
+.cc-weight-total-val.bad{color:var(--red);}
+
+/* ─── CC BAND ROWS ───────────────────────────────────────────────────── */
+.cc-band-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--border);}
+.cc-band-row:last-child{border-bottom:none;}
+.cc-band-pill{width:28px;height:22px;border-radius:6px;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cc-band-pill.A{background:var(--green-lt);color:var(--green-dk);}
+.cc-band-pill.B{background:#f0fdf4;color:#16a34a;}
+.cc-band-pill.C{background:var(--amber-lt);color:var(--amber-dk);}
+.cc-band-pill.D{background:var(--red-lt);color:var(--red);}
+.cc-band-input{width:62px;height:30px;border:1px solid var(--border2);border-radius:6px;font-size:13px;text-align:center;color:var(--text);font-family:var(--mono);background:var(--surface);}
+.cc-band-input:focus{outline:none;border-color:var(--green);}
+
+/* ─── CC SROW (toggle rows) ──────────────────────────────────────────── */
+.cc-srow{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);}
+.cc-srow:last-child{border-bottom:none;}
+.cc-srow-label{font-size:13px;font-weight:500;color:var(--text);}
+.cc-srow-hint{font-size:11px;color:var(--text4);margin-top:2px;}
+.cc-srow-right{display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:16px;}
+.cc-toggle{width:40px;height:22px;border-radius:11px;background:var(--border2);cursor:pointer;position:relative;transition:background .2s;flex-shrink:0;}
+.cc-toggle.on{background:var(--green);}
+.cc-toggle::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.cc-toggle.on::after{transform:translateX(18px);}
+.cc-num-input{width:72px;height:32px;border:1px solid var(--border2);border-radius:7px;background:var(--surface);font-family:var(--mono);font-size:13px;text-align:right;padding:0 10px;color:var(--text);}
+.cc-num-input:focus{outline:none;border-color:var(--green);}
+
+/* ─── CC INTEGRATION ROWS ────────────────────────────────────────────── */
+.cc-int-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+.cc-int-row:last-child{border-bottom:none;}
+.cc-int-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;}
+.cc-int-status{margin-left:auto;font-size:11px;padding:3px 9px;border-radius:20px;display:flex;align-items:center;gap:4px;}
+.cc-int-status.ok{background:var(--green-lt);color:var(--green-dk);}
+.cc-int-status.off{background:var(--surface2);border:1px solid var(--border);color:var(--text4);}
+.cc-savebar{background:var(--surface);border-top:1px solid var(--border);padding:10px 1.25rem;display:flex;align-items:center;justify-content:space-between;border-radius:0 0 var(--r2) var(--r2);}
+
+/* ─── CC CHIPS ───────────────────────────────────────────────────────── */
+.cc-chips{display:flex;flex-wrap:wrap;gap:5px;padding-top:10px;border-top:1px solid var(--border);margin-top:10px;}
+.cc-chip{font-size:11px;padding:3px 9px;border-radius:20px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);}
+.cc-chip.ok{background:var(--green-lt);border-color:var(--green-mid);color:var(--green-dk);}
+.cc-chip.warn{background:var(--amber-lt);border-color:rgba(217,119,6,.2);color:var(--amber-dk);}
+
+/* ─── CC STAT CARDS (History) ────────────────────────────────────────── */
+.cc-stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
+.cc-stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:1rem 1.25rem;}
+.cc-stat-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;display:flex;align-items:center;gap:5px;}
+.cc-stat-val{font-size:22px;font-weight:600;letter-spacing:-.02em;color:var(--text);}
+.cc-stat-val.green{color:var(--green);}
+.cc-stat-val.red{color:var(--red);}
+.cc-stat-sub{font-size:11px;color:var(--text4);margin-top:3px;}
+.cc-dot-g{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;}
+.cc-dot-r{width:7px;height:7px;border-radius:50%;background:var(--red);display:inline-block;}
+
+/* ─── CC FILTER ROW ──────────────────────────────────────────────────── */
+.cc-filters{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.cc-search-wrap{position:relative;}
+.cc-search-input{height:36px;border:1px solid var(--border2);border-radius:var(--r);background:var(--surface);font-family:var(--sans);font-size:13px;padding:0 10px 0 32px;color:var(--text);width:220px;}
+.cc-search-input:focus{outline:none;border-color:var(--green);}
+.cc-search-ico{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text4);pointer-events:none;font-size:12px;}
+.cc-fsel{height:36px;border:1px solid var(--border2);border-radius:var(--r);background:var(--surface);font-family:var(--sans);font-size:13px;padding:0 10px;color:var(--text);cursor:pointer;}
+.cc-fsel:focus{outline:none;}
+
+/* ─── CC RECENT ANALYSES ─────────────────────────────────────────────── */
+.cc-recent-wrap{margin-top:0;padding-top:24px;border-top:1px solid var(--border);}
+.cc-recent-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.cc-recent-title{font-size:14px;font-weight:600;color:var(--text);}
+.cc-recent-count{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:2px 7px;border-radius:20px;background:var(--green-lt);color:var(--green-dk);margin-left:7px;}
+.cc-recent-table{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;box-shadow:var(--shadow);}
+.cc-recent-head,.cc-recent-row{display:grid;grid-template-columns:2.2fr .9fr .85fr .65fr .75fr;border-bottom:1px solid var(--border);}
+.cc-recent-head{background:var(--surface2);}
+.cc-recent-row{transition:background .12s,box-shadow .12s;cursor:pointer;position:relative;}
+.cc-recent-row:last-child{border-bottom:none;}
+.cc-recent-row:hover{background:var(--surface2);}
+.cc-recent-row:hover::after{content:'→';position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--text4);}
+.cc-recent-hc{padding:9px 14px;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;}
+/* fix: min-width:0 so flex text-overflow works */
+.cc-recent-cell{padding:10px 14px;font-size:13px;display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden;}
+.cc-recent-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;}
+.cc-recent-av.A,.cc-recent-av.B{background:var(--green-lt);color:var(--green-dk);}
+.cc-recent-av.C{background:var(--amber-lt);color:var(--amber-dk);}
+.cc-recent-av.D{background:var(--red-lt);color:var(--red);}
+.cc-recent-name{font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
+.cc-recent-phone{font-size:11px;color:var(--text4);white-space:nowrap;}
+/* empty state */
+.cc-recent-empty{padding:28px 20px;text-align:center;border:1.5px dashed var(--border2);border-radius:var(--r2);background:var(--surface2);}
+.cc-recent-empty-icon{font-size:26px;margin-bottom:8px;opacity:.5;}
+.cc-recent-empty-title{font-size:13px;font-weight:500;color:var(--text2);margin-bottom:4px;}
+.cc-recent-empty-sub{font-size:12px;color:var(--text4);}
+@media(max-width:900px){
+  .cc-recent-head,.cc-recent-row{grid-template-columns:2fr .9fr .85fr;}
+  .cc-recent-hc:nth-child(4),.cc-recent-cell:nth-child(4),
+  .cc-recent-hc:nth-child(5),.cc-recent-cell:nth-child(5){display:none;}
+}
+@media(max-width:600px){
+  .cc-recent-head,.cc-recent-row{grid-template-columns:2fr .9fr;}
+  .cc-recent-hc:nth-child(3),.cc-recent-cell:nth-child(3){display:none;}
+}
+
+/* ─── EMAIL NOTIFICATIONS ────────────────────────────────────────────── */
+/* Resend connected badge in panel header */
+.cc-resend-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;background:var(--blue-lt);color:#0369a1;border:1px solid #bfdbfe;white-space:nowrap;margin-left:auto;flex-shrink:0;}
+[data-theme="dark"] .cc-resend-badge{background:rgba(59,130,246,.12);color:#93c5fd;border-color:rgba(59,130,246,.2);}
+
+/* Notification group label — thin separator with label */
+.cc-notif-group-label{display:flex;align-items:center;gap:7px;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.09em;padding:14px 0 6px;line-height:1;}
+.cc-notif-group-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.cc-notif-group-label svg{color:var(--text3);flex-shrink:0;}
+
+/* Preview email button */
+.cc-preview-btn{height:24px;padding:0 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border2);background:var(--surface2);color:var(--text3);transition:all .12s;white-space:nowrap;font-family:var(--sans);}
+.cc-preview-btn:hover{border-color:var(--green);color:var(--green-dk);background:var(--green-lt);}
+
+/* From / Reply-to inputs */
+.cc-from-input{height:32px;border:1px solid var(--border2);border-radius:7px;background:var(--surface);font-family:var(--sans);font-size:12px;padding:0 10px;color:var(--text);width:180px;transition:border-color .15s;}
+.cc-from-input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 2px var(--green-lt);}
+.cc-from-input--wide{width:230px;}
+[data-theme="dark"] .cc-from-input{background:var(--surface3);}
+
+/* Email preview modal */
+.cc-email-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:600;display:flex;align-items:center;justify-content:center;animation:cc-fadein .15s ease;}
+@keyframes cc-fadein{from{opacity:0;}to{opacity:1;}}
+.cc-email-modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);width:520px;max-width:calc(100vw - 32px);max-height:80vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow-lg);animation:cc-slideup .2s ease;}
+@keyframes cc-slideup{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+.cc-email-modal-head{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border);}
+.cc-email-modal-title{font-size:14px;font-weight:600;color:var(--text);}
+.cc-email-modal-close{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text4);border:none;background:transparent;font-size:16px;transition:background .12s;}
+.cc-email-modal-close:hover{background:var(--surface2);color:var(--text);}
+.cc-email-modal-meta{padding:.75rem 1.25rem;background:var(--surface2);border-bottom:1px solid var(--border);}
+.cc-email-meta-row{display:flex;gap:8px;font-size:12px;color:var(--text3);padding:2px 0;}
+.cc-email-meta-label{font-weight:600;color:var(--text4);min-width:44px;}
+/* Email preview frame rendered as a card */
+.cc-email-preview-body{flex:1;overflow-y:auto;padding:1.25rem;}
+.cc-email-frame{background:#fff;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.cc-email-frame-header{background:var(--green);padding:20px 24px 16px;}
+.cc-email-frame-logo{font-size:13px;font-weight:700;color:#fff;letter-spacing:.02em;margin-bottom:2px;}
+.cc-email-frame-tagline{font-size:11px;color:rgba(255,255,255,.65);}
+.cc-email-frame-content{padding:20px 24px;}
+.cc-email-frame-subject{font-size:16px;font-weight:600;color:#111827;margin-bottom:10px;line-height:1.3;}
+.cc-email-frame-body{font-size:13px;color:#374151;line-height:1.7;}
+.cc-email-frame-divider{height:1px;background:#e5e7eb;margin:14px 0;}
+.cc-email-frame-detail{display:flex;justify-content:space-between;padding:5px 0;font-size:12px;color:#374151;border-bottom:1px solid #f3f4f6;}
+.cc-email-frame-detail:last-child{border-bottom:none;}
+.cc-email-frame-detail-label{color:#6b7280;font-weight:500;}
+.cc-email-frame-cta{margin:16px 0 0;}
+.cc-email-frame-btn{display:inline-block;background:var(--green);color:#fff;font-size:13px;font-weight:600;padding:9px 20px;border-radius:8px;text-decoration:none;}
+.cc-email-frame-footer{background:#f9fafb;border-top:1px solid #e5e7eb;padding:12px 24px;font-size:11px;color:#9ca3af;}
+[data-theme="dark"] .cc-email-frame{background:var(--surface2);}
+
+/* ─── DARK MODE OVERRIDES ────────────────────────────────────────────── */
+[data-theme="dark"] .cc-upload-card{background:var(--surface);}
+[data-theme="dark"] .cc-drop-zone{background:var(--surface2);}
+[data-theme="dark"] .cc-num-input,[data-theme="dark"] .cc-band-input,
+[data-theme="dark"] .cc-weight-input,[data-theme="dark"] .cc-override-sel,
+[data-theme="dark"] .cc-period-sel,[data-theme="dark"] .cc-fsel,
+[data-theme="dark"] .cc-search-input{background:var(--surface3);border-color:var(--border);color:var(--text);}
+[data-theme="dark"] .cc-result-card{box-shadow:none;border:1px solid var(--border);}
+[data-theme="dark"] .cc-hist-table,[data-theme="dark"] .cc-recent-table{border:1px solid var(--border);box-shadow:none;}
+[data-theme="dark"] .cc-recent-wrap{border-top-color:var(--border);}
+[data-theme="dark"] .cc-recent-empty{border-color:var(--border);background:var(--surface2);}
+
+/* ─── RESPONSIVE ─────────────────────────────────────────────────────── */
+@media(max-width:900px){
+  .cc-upload-grid{grid-template-columns:1fr;}
+  .cc-risk-grid{grid-template-columns:1fr 1fr;}
+  .cc-cat-grid{grid-template-columns:1fr 1fr;}
+  .cc-hist-head,.cc-hist-row{grid-template-columns:2fr .9fr .8fr 90px;}
+  .cc-hist-hc:nth-child(4),.cc-hist-cell:nth-child(4),
+  .cc-hist-hc:nth-child(5),.cc-hist-cell:nth-child(5){display:none;}
+  .cc-settings-grid{grid-template-columns:1fr;}
+  .cc-settings-nav{position:static;}
+  .cc-stats-grid{grid-template-columns:1fr 1fr;}
+  .cc-result-card{flex-wrap:wrap;gap:14px;}
+  .cc-result-acts{flex-direction:row;flex-wrap:wrap;}
+}
+@media(max-width:600px){
+  .cc-risk-grid,.cc-cat-grid{grid-template-columns:1fr;}
+  .cc-result-card{flex-direction:column;}
+  .cc-stats-grid{grid-template-columns:1fr 1fr;}
+  .cc-hist-head,.cc-hist-row{grid-template-columns:1.8fr .9fr 90px;}
+  .cc-hist-hc:nth-child(3),.cc-hist-cell:nth-child(3){display:none;}
+  .cc-month-row{grid-template-columns:50px 1fr 65px;}
+  .cc-month-row > *:nth-child(3){display:none;}
+}
+input[type=file]{display:none;}
+input:focus,select:focus{outline:none;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen" style="display:none;">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="login-brand-icon">CC</div>
+      <div class="login-brand-name">CentyCapital LMS</div>
+    </div>
+    <div class="login-title">Sign in to your account</div>
+    <div class="login-sub">Internal LMS console · Kenya</div>
+    <div class="field" style="margin-bottom:12px;">
+      <label>Email address</label>
+      <input type="email" id="login-email" placeholder="admin@centycapital.com" autocomplete="email">
+    </div>
+    <div class="field" style="margin-bottom:16px;">
+      <label>Password</label>
+      <input type="password" id="login-pwd" placeholder="••••••••" autocomplete="current-password">
+      <div class="login-err" id="login-error"></div>
+    </div>
+    <button class="btn btn-primary w100" onclick="doLogin()" style="height:40px;font-size:14px;">Sign In →</button>
+    <div class="login-hint">Demo account<br>admin@centycapital.com &nbsp;/&nbsp; demo1234</div>
+  </div>
+</div>
+
+<!-- MOBILE SIDEBAR OVERLAY -->
+<div class="mobile-overlay" id="mobile-overlay" onclick="closeSidebar()"></div>
+
+<!-- APP SHELL -->
+<div class="shell" id="app-shell" style="display:none;">
+
+<!-- SIDEBAR -->
+<aside id="sidebar">
+  <div class="brand">
+    <div class="brand-icon">CC</div>
+    <div class="brand-name">CentyCapital</div>
+    <div class="brand-badge">LMS</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Origination</div>
+    <div class="nav-item" onclick="goLms('leads')"><span class="nav-icon">🎯</span> Leads</div>
+    <div class="nav-item" onclick="goLms('applications')"><span class="nav-icon">📋</span> Applications</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label" style="color:var(--green-dk);">Credit Scoring</div>
+    <div class="nav-item cc-nav-item active" data-view="assess" onclick="showCCView('assess')"><span class="nav-icon">🧠</span> CentyCred</div>
+    <div class="nav-item cc-nav-item" data-view="history" onclick="showCCView('history')"><span class="nav-icon">📈</span> Score History</div>
+    <div class="nav-item cc-nav-item" data-view="cc-settings" onclick="showCCView('cc-settings')"><span class="nav-icon">⚙️</span> Scorecard Settings</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Portfolio</div>
+    <div class="nav-item" onclick="goLms('loans')"><span class="nav-icon">💳</span> Loans <span class="nav-badge">12</span></div>
+    <div class="nav-item" onclick="goLms('borrowers')"><span class="nav-icon">👥</span> Borrowers</div>
+    <div class="nav-item" onclick="goLms('mpesa')"><span class="nav-icon">📲</span> M-Pesa Payments</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Configuration</div>
+    <div class="nav-item" onclick="goLms('products')"><span class="nav-icon">📦</span> Products</div>
+    <div class="nav-item" onclick="goLms('kyc')"><span class="nav-icon">🪪</span> KYC Management</div>
+    <div class="nav-item" onclick="goLms('profiles')"><span class="nav-icon">🗂️</span> Borrower Profiles</div>
+    <div class="nav-item" onclick="goLms('sms')"><span class="nav-icon">💬</span> SMS Management</div>
+    <div class="nav-item" onclick="goLms('reports')"><span class="nav-icon">📊</span> Reports</div>
+    <div class="nav-item" onclick="goLms('settings')"><span class="nav-icon">⚙️</span> Settings</div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="logout-btn" onclick="doLogout()"><span class="nav-icon">→</span> Sign out</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main>
+  <div class="topbar">
+    <button class="hamburger-btn" onclick="toggleSidebar()" title="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="topbar-title" id="topbar-title">CentyCred — automated credit scoring</div>
+    <div class="topbar-actions">
+      <div class="gsearch-wrap" id="gsearch-wrap">
+        <input class="gsearch-input" id="gsearch-input" type="text" placeholder="Search score history…" oninput="ccSearch(this.value)" onfocus="ccSearch(this.value)" autocomplete="off">
+        <div class="gsearch-results" id="gsearch-results"></div>
+      </div>
+      <button class="icon-btn theme-toggle-btn" id="theme-toggle-btn" onclick="toggleDarkMode()" title="Toggle dark mode">🌙</button>
+      <div class="avatar">EM</div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       VIEW: CENTYCRED ASSESSMENT
+  ════════════════════════════════════════ -->
+  <div id="view-assess" class="content">
+    <div class="page-head anim d1">
+      <h2>CentyCred Assessment</h2>
+      <p>Upload M-Pesa and bank statements to generate an automated credit score and risk profile.</p>
+    </div>
+
+    <!-- STAGE: UPLOAD -->
+    <div id="cc-stage-upload">
+      <div class="cc-upload-grid">
+        <!-- M-Pesa Upload Card -->
+        <div class="cc-upload-card anim d2" id="cc-mpesa-card" onclick="document.getElementById('cc-mpesa-file').click()"
+             ondragover="ccDov(event,'cc-mpesa-card')" ondragleave="ccDlv('cc-mpesa-card')"
+             ondrop="ccDropMpesa(event)">
+          <input type="file" id="cc-mpesa-file" accept=".pdf" onchange="onMpesaFile(this)">
+          <div class="cc-card-head">
+            <div class="cc-card-icon green">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.5" stroke-linecap="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="12" y2="15"/></svg>
+            </div>
+            <span class="cc-ready-tag" id="cc-mpesa-tag">Awaiting upload</span>
+          </div>
+          <div class="cc-card-title">M-Pesa statement</div>
+          <div class="cc-card-hint">Safaricom PDF — applicant name, phone, ID and period extracted automatically. No manual entry required.</div>
+          <div class="cc-drop-zone" id="cc-mpesa-dz">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="margin:0 auto 6px;display:block;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Drop PDF here or click to browse
+          </div>
+          <div class="cc-file-list" id="cc-mpesa-fl"></div>
+        </div>
+
+        <!-- Bank Upload Card -->
+        <div class="cc-upload-card anim d3" id="cc-bank-card" onclick="document.getElementById('cc-bank-file').click()"
+             ondragover="ccDov(event,'cc-bank-card')" ondragleave="ccDlv('cc-bank-card')"
+             ondrop="ccDropBank(event)">
+          <input type="file" id="cc-bank-file" accept=".pdf,.xlsx,.xls,.csv" multiple onchange="onBankFiles(this)">
+          <div class="cc-card-head">
+            <div class="cc-card-icon blue">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="10" width="18" height="11" rx="1"/><path d="M3 10l9-7 9 7"/><line x1="12" y1="10" x2="12" y2="21"/></svg>
+            </div>
+            <span class="cc-ready-tag" id="cc-bank-tag">Awaiting upload</span>
+          </div>
+          <div class="cc-card-title">Bank statements</div>
+          <div class="cc-card-hint">Any bank · any format · multiple accounts. Format detected and schema reconstructed automatically.</div>
+          <div class="cc-bank-pills">
+            <span class="cc-pill">KCB</span><span class="cc-pill">Equity</span><span class="cc-pill">Co-op</span>
+            <span class="cc-pill">ABSA</span><span class="cc-pill">NCBA</span><span class="cc-pill">DTB</span>
+            <span class="cc-pill">Stanbic</span><span class="cc-pill">Family</span><span class="cc-pill">+ any</span>
+          </div>
+          <div class="cc-drop-zone" id="cc-bank-dz">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="margin:0 auto 6px;display:block;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Drop PDF / Excel / CSV · multiple files OK
+          </div>
+          <div class="cc-file-list" id="cc-bank-fl"></div>
+          <div id="cc-detect-box"></div>
+        </div>
+      </div>
+
+      <div class="cc-bottom-row anim d4">
+        <select class="cc-period-sel">
+          <option>Last 12 months</option>
+          <option>Last 6 months</option>
+          <option>Last 3 months</option>
+        </select>
+        <button class="btn btn-primary" id="cc-analyse-btn" disabled onclick="startProcessing()" style="flex:1;height:40px;gap:8px;display:flex;align-items:center;justify-content:center;font-size:13px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Analyse statements
+        </button>
+      </div>
+
+      <!-- Recent Analyses -->
+      <div id="cc-recent-wrap" class="cc-recent-wrap anim d5" style="display:none;">
+        <div class="cc-recent-header">
+          <div>
+            <span class="cc-recent-title">Recent Analyses</span>
+            <span class="cc-recent-count" id="cc-recent-count">0</span>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="showCCView('history')">Full history →</button>
+        </div>
+        <div class="cc-recent-table" id="cc-recent-table-wrap">
+          <div class="cc-recent-head">
+            <div class="cc-recent-hc">Applicant</div>
+            <div class="cc-recent-hc">Score</div>
+            <div class="cc-recent-hc">Inflow</div>
+            <div class="cc-recent-hc">DBR</div>
+            <div class="cc-recent-hc">Date</div>
+          </div>
+          <div id="cc-recent-body"></div>
+        </div>
+      </div>
+    </div><!-- /upload -->
+
+    <!-- STAGE: PROCESSING -->
+    <div id="cc-stage-processing" style="display:none;">
+      <div class="card anim d1" style="text-align:center;padding:2.5rem 2rem;">
+        <div class="cc-spin"></div>
+        <div style="font-size:15px;font-weight:600;margin-bottom:4px;">Analysing statements</div>
+        <div style="font-size:12px;color:var(--text3);">Parsing, classifying and scoring — typically 15–30 seconds</div>
+        <div class="cc-proc-steps">
+          <div class="cc-proc-step" id="ccs1"><div class="cc-proc-dot">1</div><span>Parsing M-Pesa PDF and extracting applicant identity</span></div>
+          <div class="cc-proc-step" id="ccs2"><div class="cc-proc-dot">2</div><span>Detecting bank format and normalising transaction schema</span></div>
+          <div class="cc-proc-step" id="ccs3"><div class="cc-proc-dot">3</div><span>Classifying transactions and detecting loan obligations</span></div>
+          <div class="cc-proc-step" id="ccs4"><div class="cc-proc-dot">4</div><span>Computing monthly turnover, DBR and affordability</span></div>
+          <div class="cc-proc-step" id="ccs5"><div class="cc-proc-dot">5</div><span>Generating CentyCred score and risk profile</span></div>
+        </div>
+      </div>
+    </div><!-- /processing -->
+
+    <!-- STAGE: CONFIRM -->
+    <div id="cc-stage-confirm" style="display:none;">
+      <div class="card anim d1" style="margin-bottom:12px;">
+        <div class="card-body" style="padding:1.25rem;">
+          <div class="cc-section-label" style="font-size:10px;font-weight:700;color:var(--text4);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">Parsed from statement — verify before proceeding</div>
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px;">
+            <div style="width:44px;height:44px;border-radius:50%;background:var(--green-lt);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--green-dk);flex-shrink:0;">JK</div>
+            <div>
+              <div style="font-size:15px;font-weight:600;margin-bottom:2px;">James Kariuki Wairimu</div>
+              <div style="font-size:12px;color:var(--text3);line-height:1.7;">+254 702 157 657 · jk714700@gmail.com<br>14 Jul 2024 – 14 Jul 2025 · 12 months · 2,733 transactions</div>
+            </div>
+          </div>
+          <div class="cc-chips">
+            <span class="cc-chip ok">M-Pesa · 1,567 txns</span>
+            <span class="cc-chip ok">KCB · 363 txns</span>
+            <span class="cc-chip ok">Equity · 847 txns</span>
+            <span class="cc-chip ok">Co-op · 156 txns</span>
+            <span class="cc-chip warn">Fuliza · 768 draws</span>
+            <span class="cc-chip warn">SpotCash Plus · 4 draws</span>
+            <span class="cc-chip ok">6 bank relationships</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card anim d2" style="margin-bottom:12px;">
+        <div class="card-body" style="padding:1.25rem;">
+          <div style="font-size:10px;font-weight:700;color:var(--text4);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;">Bank format detection</div>
+          <div class="cc-detect-row"><span style="font-size:12px;color:var(--text3);">KCB_statement_Jul24-Jul25.pdf</span><span class="cc-conf-badge hi">KCB PDF · 97%</span></div>
+          <div class="cc-detect-row"><span style="font-size:12px;color:var(--text3);">Equity_AC_II_Jun_Oct_2025.xlsx</span><span class="cc-conf-badge hi">Equity Eazzy Excel · 94%</span></div>
+          <div style="padding:6px 0;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-size:12px;color:var(--text3);">statement_coop_march25.pdf</span>
+              <span class="cc-conf-badge md">Co-op PDF · 76%</span>
+            </div>
+            <div class="cc-override-link" onclick="document.getElementById('cc-override-row').classList.toggle('open')">Format unclear — tap to correct</div>
+            <div class="cc-override-row" id="cc-override-row">
+              <select class="cc-override-sel">
+                <option>Co-operative Bank PDF</option><option>Co-op CSV</option><option>KCB PDF</option>
+                <option>Equity Eazzy Excel</option><option>ABSA PDF</option><option>Generic CSV</option>
+              </select>
+              <button class="btn btn-sm" style="background:var(--amber);color:#fff;border:none;height:28px;padding:0 12px;" onclick="document.getElementById('cc-override-row').classList.remove('open')">Apply</button>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--text4);padding-top:10px;border-top:1px solid var(--border);margin-top:4px;">Ambiguous transactions are excluded and flagged. No manual entry required.</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;" class="anim d3">
+        <button class="btn btn-ghost" onclick="ccSetStage('upload')">← Re-upload</button>
+        <button class="btn btn-primary" style="flex:1;height:40px;" onclick="goScore()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Confirm and generate score
+        </button>
+      </div>
+    </div><!-- /confirm -->
+
+    <!-- STAGE: RESULT -->
+    <div id="cc-stage-result" style="display:none;">
+      <!-- Score hero card -->
+      <div class="cc-result-card anim d1">
+        <div class="cc-score-wrap">
+          <svg width="96" height="96" viewBox="0 0 96 96" style="position:absolute;inset:0;">
+            <circle cx="48" cy="48" r="40" fill="none" stroke="var(--border)" stroke-width="5"/>
+            <circle cx="48" cy="48" r="40" fill="none" stroke="var(--green)" stroke-width="5"
+              stroke-dasharray="251.3" stroke-dashoffset="251.3"
+              stroke-linecap="round" transform="rotate(-90 48 48)"
+              id="cc-score-arc" style="transition:stroke-dashoffset 1.4s cubic-bezier(.16,1,.3,1)"/>
+          </svg>
+          <div class="cc-score-label">
+            <div class="cc-score-num" id="cc-score-display" style="color:var(--green);">729</div>
+            <div class="cc-score-max">/900</div>
+          </div>
+        </div>
+        <div class="cc-result-info">
+          <div class="cc-result-name">James Kariuki Wairimu</div>
+          <div class="cc-result-meta">Jul 2024 – Jul 2025 · M-Pesa + KCB + Equity + Co-op · 2,733 transactions</div>
+          <div class="cc-result-badges">
+            <span class="badge green">Minor risk</span>
+            <span class="badge amber">Fuliza flag</span>
+            <span class="badge" style="background:var(--surface2);border:1px solid var(--border);color:var(--text3);">Tier 1 cohort</span>
+            <span class="badge" style="background:var(--surface2);border:1px solid var(--border);color:var(--text3);">Agribusiness</span>
+            <span class="badge" style="background:var(--surface2);border:1px solid var(--border);color:var(--text3);">Narok</span>
+          </div>
+        </div>
+        <div class="cc-result-acts">
+          <button class="cc-act-btn primary" onclick="ccDownloadPdf()">↓ Download PDF</button>
+          <button class="cc-act-btn ghost" onclick="ccExplain()">Explain score</button>
+          <button class="cc-act-btn ghost" onclick="ccDecision()">Approval decision</button>
+          <button class="cc-act-btn ghost" onclick="ccSetStage('upload');buildRecentAnalyses()">New assessment</button>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-grid anim d2">
+        <div class="kpi d1"><div class="kpi-label">Avg Monthly Inflow</div><div class="kpi-value" style="color:var(--green);">KES 1.31M</div><div class="kpi-sub">12-month average</div></div>
+        <div class="kpi d2"><div class="kpi-label">Affordability</div><div class="kpi-value">KES 239K</div><div class="kpi-sub">Est. disposable income</div></div>
+        <div class="kpi d3"><div class="kpi-label">Debt-to-Income Ratio</div><div class="kpi-value" style="color:var(--green);">2.08</div><div class="kpi-sub">Operating CF / EMIs</div></div>
+        <div class="kpi d4"><div class="kpi-label">Existing EMIs</div><div class="kpi-value" style="color:var(--amber);">KES 86.5K</div><div class="kpi-sub">Detected obligations</div></div>
+      </div>
+
+      <!-- Risk indicators -->
+      <div class="cc-risk-grid anim d3">
+        <div class="cc-risk-item">
+          <div class="cc-risk-label">Fuliza Utilisation</div>
+          <div class="cc-bar-track"><div class="cc-bar-fill" style="width:68%;background:var(--amber);"></div></div>
+          <div class="cc-risk-val" style="color:var(--amber);">17.2% of inflow — elevated · 768 draws</div>
+        </div>
+        <div class="cc-risk-item">
+          <div class="cc-risk-label">Income Consistency</div>
+          <div class="cc-bar-track"><div class="cc-bar-fill" style="width:72%;background:var(--green);"></div></div>
+          <div class="cc-risk-val">72% score — moderate variance</div>
+        </div>
+        <div class="cc-risk-item">
+          <div class="cc-risk-label">Betting Exposure</div>
+          <div class="cc-bar-track"><div class="cc-bar-fill" style="width:4%;background:var(--green);"></div></div>
+          <div class="cc-risk-val" style="color:var(--green);">0.006% — negligible</div>
+        </div>
+      </div>
+
+      <!-- Spend classification -->
+      <div style="font-size:10px;font-weight:700;color:var(--text4);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;" class="anim d4">Spend classification</div>
+      <div class="cc-cat-grid anim d4">
+        <div class="cc-cat-item"><div class="cc-cat-name">Bank transfers out</div><div class="cc-cat-bar"><div class="cc-cat-fill" style="width:95%;background:var(--green);"></div></div><div class="cc-cat-val">KES 8.97M · 363 txns</div></div>
+        <div class="cc-cat-item"><div class="cc-cat-name">Fuel stations</div><div class="cc-cat-bar"><div class="cc-cat-fill" style="width:82%;background:var(--blue);"></div></div><div class="cc-cat-val">KES 290,510 · 68 txns</div></div>
+        <div class="cc-cat-item"><div class="cc-cat-name">Agro suppliers</div><div class="cc-cat-bar"><div class="cc-cat-fill" style="width:58%;background:var(--purple);"></div></div><div class="cc-cat-val">KES 144,600 · 21 txns</div></div>
+        <div class="cc-cat-item"><div class="cc-cat-name">Shopping</div><div class="cc-cat-bar"><div class="cc-cat-fill" style="width:18%;background:var(--teal);"></div></div><div class="cc-cat-val">KES 54,618 · 31 txns</div></div>
+        <div class="cc-cat-item"><div class="cc-cat-name">Education</div><div class="cc-cat-bar"><div class="cc-cat-fill" style="width:10%;background:#059669;"></div></div><div class="cc-cat-val">KES 29,000 · 3 txns</div></div>
+        <div class="cc-cat-item"><div class="cc-cat-name">Entertainment</div><div class="cc-cat-bar"><div class="cc-cat-fill" style="width:7%;background:var(--red);"></div></div><div class="cc-cat-val">KES 15,120 · 17 txns</div></div>
+      </div>
+
+      <!-- Monthly turnover -->
+      <div class="card anim d5">
+        <div class="card-head"><span class="card-title">Monthly Turnover</span><button class="btn btn-ghost btn-sm" onclick="toast('Exporting monthly data…','info')">↓ Export</button></div>
+        <div style="padding:0 1.25rem 1.25rem;">
+          <div class="cc-month-row hdr"><div>Month</div><div>Inflow</div><div>Outflow</div><div style="text-align:right;">Net</div></div>
+          <div id="cc-month-table"></div>
+        </div>
+      </div>
+    </div><!-- /result -->
+  </div><!-- /view-assess -->
+
+  <!-- ════════════════════════════════════════
+       VIEW: SCORE HISTORY
+  ════════════════════════════════════════ -->
+  <div id="view-history" class="content" style="display:none;">
+    <div class="page-head anim d1">
+      <h2>Score History</h2>
+      <p>All credit assessments run through CentyCred — searchable and exportable.</p>
+    </div>
+
+    <div class="cc-stats-grid anim d2">
+      <div class="cc-stat-card d1"><div class="cc-stat-label"><span class="cc-dot-g"></span>Total Assessments</div><div class="cc-stat-val" id="h-total">43</div><div class="cc-stat-sub">+8 this month</div></div>
+      <div class="cc-stat-card d2"><div class="cc-stat-label"><span class="cc-dot-g"></span>Avg CentyCred Score</div><div class="cc-stat-val green" id="h-avg">694</div><div class="cc-stat-sub">↑ 12 pts vs last cycle</div></div>
+      <div class="cc-stat-card d3"><div class="cc-stat-label"><span class="cc-dot-g"></span>Band A &amp; B Approved</div><div class="cc-stat-val" id="h-approved">28</div><div class="cc-stat-sub">65% of assessments</div></div>
+      <div class="cc-stat-card d4"><div class="cc-stat-label"><span class="cc-dot-r"></span>Flagged / Declined</div><div class="cc-stat-val red" id="h-flagged">6</div><div class="cc-stat-sub">14% — Fuliza or betting</div></div>
+    </div>
+
+    <div class="cc-filters anim d3">
+      <div class="cc-search-wrap">
+        <span class="cc-search-ico">🔍</span>
+        <input class="cc-search-input" id="h-search" placeholder="Search by name or phone…" oninput="filterHistory()">
+      </div>
+      <select class="cc-fsel" id="h-band-filter" onchange="filterHistory()">
+        <option value="">All risk bands</option>
+        <option value="A">Band A (750+)</option>
+        <option value="B">Band B (600–749)</option>
+        <option value="C">Band C (450–599)</option>
+        <option value="D">Band D (&lt;450)</option>
+      </select>
+      <select class="cc-fsel" id="h-period-filter" onchange="filterHistory()">
+        <option>All periods</option>
+        <option>This month</option>
+        <option>Last 3 months</option>
+      </select>
+      <button class="btn btn-primary btn-sm" onclick="showCCView('assess')" style="margin-left:auto;">+ New Assessment</button>
+    </div>
+
+    <div class="cc-hist-table anim d4">
+      <div class="cc-hist-head">
+        <div class="cc-hist-hc">Applicant</div>
+        <div class="cc-hist-hc">Score</div>
+        <div class="cc-hist-hc">Inflow</div>
+        <div class="cc-hist-hc">DBR</div>
+        <div class="cc-hist-hc">Risk</div>
+        <div class="cc-hist-hc">Actions</div>
+      </div>
+      <div id="cc-hist-body"></div>
+    </div>
+  </div><!-- /view-history -->
+
+  <!-- ════════════════════════════════════════
+       VIEW: SCORECARD SETTINGS
+  ════════════════════════════════════════ -->
+  <div id="view-cc-settings" class="content" style="display:none;">
+    <div class="page-head anim d1">
+      <h2>Scorecard Settings</h2>
+      <p>Configure the CentyCred scoring engine, risk bands, hard rules and integrations.</p>
+    </div>
+
+    <div class="cc-settings-grid anim d2">
+      <!-- Settings nav -->
+      <div class="cc-settings-nav">
+        <div class="cc-sni active" onclick="ccSNav(this,'sc-weights')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>Score weights</div>
+        <div class="cc-sni" onclick="ccSNav(this,'sc-bands')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Risk bands</div>
+        <div class="cc-sni" onclick="ccSNav(this,'sc-rules')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Hard decline rules</div>
+        <div class="cc-sni" onclick="ccSNav(this,'sc-parser')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Parser config</div>
+        <div class="cc-sni-divider"></div>
+        <div class="cc-sni" onclick="ccSNav(this,'sc-integrations')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Integrations</div>
+        <div class="cc-sni" onclick="ccSNav(this,'sc-notifications')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Email notifications</div>
+      </div>
+
+      <div class="cc-settings-body">
+
+        <!-- Score Weights -->
+        <div class="cc-sec" id="sc-weights">
+          <div class="cc-sec-head"><div class="cc-sec-title">Score weights</div><div class="cc-sec-hint">Total must equal 100%. Edit values to adjust.</div></div>
+          <div class="cc-sec-body">
+            <div id="cc-weight-rows"></div>
+            <div class="cc-weight-total"><span>Total weight</span><span class="cc-weight-total-val ok" id="cc-weight-total">100%</span></div>
+          </div>
+        </div>
+
+        <!-- Risk Bands -->
+        <div class="cc-sec" id="sc-bands" style="display:none;">
+          <div class="cc-sec-head"><div class="cc-sec-title">Risk band thresholds</div><div class="cc-sec-hint">Score ranges for each classification. Bands must cover 0–900 without gaps.</div></div>
+          <div class="cc-sec-body">
+            <div class="cc-band-row"><div class="cc-band-pill A">A</div><div style="flex:1;font-size:13px;">Low risk — approve</div><div style="display:flex;align-items:center;gap:6px;"><input class="cc-band-input" value="750"><span style="font-size:12px;color:var(--text4);">–</span><input class="cc-band-input" value="900"></div></div>
+            <div class="cc-band-row"><div class="cc-band-pill B">B</div><div style="flex:1;font-size:13px;">Minor risk — review</div><div style="display:flex;align-items:center;gap:6px;"><input class="cc-band-input" value="600"><span style="font-size:12px;color:var(--text4);">–</span><input class="cc-band-input" value="749"></div></div>
+            <div class="cc-band-row"><div class="cc-band-pill C">C</div><div style="flex:1;font-size:13px;">Moderate risk — conditional</div><div style="display:flex;align-items:center;gap:6px;"><input class="cc-band-input" value="450"><span style="font-size:12px;color:var(--text4);">–</span><input class="cc-band-input" value="599"></div></div>
+            <div class="cc-band-row"><div class="cc-band-pill D">D</div><div style="flex:1;font-size:13px;">High risk — decline</div><div style="display:flex;align-items:center;gap:6px;"><input class="cc-band-input" value="0"><span style="font-size:12px;color:var(--text4);">–</span><input class="cc-band-input" value="449"></div></div>
+          </div>
+        </div>
+
+        <!-- Hard Decline Rules -->
+        <div class="cc-sec" id="sc-rules" style="display:none;">
+          <div class="cc-sec-head"><div class="cc-sec-title">Hard decline rules</div><div class="cc-sec-hint">Applications matching these criteria are auto-declined regardless of score.</div></div>
+          <div class="cc-sec-body">
+            <div class="cc-srow"><div><div class="cc-srow-label">Fuliza utilisation &gt; 30%</div><div class="cc-srow-hint">Auto-decline if Fuliza draws exceed 30% of monthly inflow</div></div><div class="cc-srow-right"><div class="cc-toggle on" onclick="this.classList.toggle('on')"></div></div></div>
+            <div class="cc-srow"><div><div class="cc-srow-label">Betting spend &gt; 5% of inflow</div><div class="cc-srow-hint">Flag and decline if betting exceeds threshold</div></div><div class="cc-srow-right"><div class="cc-toggle on" onclick="this.classList.toggle('on')"></div></div></div>
+            <div class="cc-srow"><div><div class="cc-srow-label">Active mobile lenders &gt; 3</div><div class="cc-srow-hint">Decline if more than 3 concurrent mobile lenders detected</div></div><div class="cc-srow-right"><div class="cc-toggle" onclick="this.classList.toggle('on')"></div></div></div>
+            <div class="cc-srow"><div><div class="cc-srow-label">Statement period &lt; 6 months</div><div class="cc-srow-hint">Require minimum 6 months of data for a valid assessment</div></div><div class="cc-srow-right"><div class="cc-toggle on" onclick="this.classList.toggle('on')"></div></div></div>
+            <div class="cc-srow"><div><div class="cc-srow-label">CRB default flag present</div><div class="cc-srow-hint">Auto-decline if CRB check returns an active default</div></div><div class="cc-srow-right"><div class="cc-toggle" onclick="this.classList.toggle('on')"></div></div></div>
+          </div>
+        </div>
+
+        <!-- Parser Config -->
+        <div class="cc-sec" id="sc-parser" style="display:none;">
+          <div class="cc-sec-head"><div class="cc-sec-title">Parser configuration</div><div class="cc-sec-hint">Control how statements are parsed, classified and validated.</div></div>
+          <div class="cc-sec-body">
+            <div class="cc-srow"><div><div class="cc-srow-label">Minimum parse confidence</div><div class="cc-srow-hint">Transactions below this threshold are excluded and flagged</div></div><div class="cc-srow-right"><input class="cc-num-input" value="80"><span style="font-size:12px;color:var(--text4);">%</span></div></div>
+            <div class="cc-srow"><div><div class="cc-srow-label">OCR fallback for scanned PDFs</div><div class="cc-srow-hint">Use Tesseract OCR when no text layer is detected</div></div><div class="cc-srow-right"><div class="cc-toggle on" onclick="this.classList.toggle('on')"></div></div></div>
+            <div class="cc-srow"><div><div class="cc-srow-label">Balance reconciliation check</div><div class="cc-srow-hint">Validate opening + credits − debits = closing balance</div></div><div class="cc-srow-right"><div class="cc-toggle on" onclick="this.classList.toggle('on')"></div></div></div>
+            <div class="cc-srow"><div><div class="cc-srow-label">Multi-statement deduplication</div><div class="cc-srow-hint">Remove duplicates when M-Pesa and bank statements overlap</div></div><div class="cc-srow-right"><div class="cc-toggle on" onclick="this.classList.toggle('on')"></div></div></div>
+            <div class="cc-srow"><div><div class="cc-srow-label">Fuliza net calculation</div><div class="cc-srow-hint">Subtract repayments from draws to show net exposure</div></div><div class="cc-srow-right"><div class="cc-toggle on" onclick="this.classList.toggle('on')"></div></div></div>
+            <div class="cc-srow"><div><div class="cc-srow-label">Operating CF percentage</div><div class="cc-srow-hint">% of gross turnover used as operating cash flow proxy for DBR</div></div><div class="cc-srow-right"><input class="cc-num-input" value="10"><span style="font-size:12px;color:var(--text4);">%</span></div></div>
+          </div>
+        </div>
+
+        <!-- Integrations -->
+        <div class="cc-sec" id="sc-integrations" style="display:none;">
+          <div class="cc-sec-head"><div class="cc-sec-title">Integrations</div><div class="cc-sec-hint">Connect CentyCred to external data sources and your LMS workflow.</div></div>
+          <div class="cc-sec-body">
+            <div class="cc-int-row"><div class="cc-int-icon" style="background:var(--green-lt);color:var(--green-dk);">ERPNext</div><div style="flex:1;"><div style="font-size:13px;font-weight:500;">ERPNext Lending</div><div style="font-size:11px;color:var(--text4);">Push approved scores to Credit Application DocType</div></div><span class="cc-int-status ok">● Connected</span><button class="btn btn-ghost btn-sm">Configure</button></div>
+            <div class="cc-int-row"><div class="cc-int-icon" style="background:var(--surface2);color:var(--text2);font-size:10px;">Metro</div><div style="flex:1;"><div style="font-size:13px;font-weight:500;">Metropol CRB</div><div style="font-size:11px;color:var(--text4);">Kenya credit bureau check on score generation</div></div><span class="cc-int-status off">○ Disconnected</span><button class="btn btn-primary btn-sm">Connect</button></div>
+            <div class="cc-int-row"><div class="cc-int-icon" style="background:#f0f9ff;color:#0369a1;font-size:10px;font-weight:700;">Resend</div><div style="flex:1;"><div style="font-size:13px;font-weight:500;">Resend</div><div style="font-size:11px;color:var(--text4);">Transactional emails — assessments, approvals, lifecycle alerts</div></div><span class="cc-int-status ok">● Connected</span><button class="btn btn-ghost btn-sm">Configure</button></div>
+            <div class="cc-int-row"><div class="cc-int-icon" style="background:var(--green-lt);color:var(--green-dk);font-size:9px;">Daraja</div><div style="flex:1;"><div style="font-size:13px;font-weight:500;">Safaricom Daraja</div><div style="font-size:11px;color:var(--text4);">M-Pesa statement pull via Daraja API (beta)</div></div><span class="cc-int-status off">○ Disconnected</span><button class="btn btn-primary btn-sm">Connect</button></div>
+          </div>
+        </div>
+
+        <!-- Email Notifications -->
+        <div class="cc-sec" id="sc-notifications" style="display:none;">
+          <div class="cc-sec-head">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div>
+                <div class="cc-sec-title">Email notifications</div>
+                <div class="cc-sec-hint">Automated emails via Resend · all notifications use your verified sender domain</div>
+              </div>
+              <span class="cc-resend-badge">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Resend connected
+              </span>
+            </div>
+          </div>
+          <div class="cc-sec-body">
+
+            <!-- Group 1: CentyCred Scoring -->
+            <div class="cc-notif-group-label">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              CentyCred scoring
+            </div>
+            <div class="cc-srow">
+              <div>
+                <div class="cc-srow-label">Score below Band C</div>
+                <div class="cc-srow-hint">Email loan officer when CentyCred score is below 450 — flags high-risk applicants immediately</div>
+              </div>
+              <div class="cc-srow-right">
+                <button class="cc-preview-btn" onclick="ccPreviewEmail('low_score')">Preview</button>
+                <div class="cc-toggle on" onclick="this.classList.toggle('on')"></div>
+              </div>
+            </div>
+            <div class="cc-srow">
+              <div>
+                <div class="cc-srow-label">Assessment complete — notify applicant</div>
+                <div class="cc-srow-hint">Email the applicant when their CentyCred report is ready, with a summary of their score</div>
+              </div>
+              <div class="cc-srow-right">
+                <button class="cc-preview-btn" onclick="ccPreviewEmail('assessment_complete')">Preview</button>
+                <div class="cc-toggle" onclick="this.classList.toggle('on')"></div>
+              </div>
+            </div>
+            <div class="cc-srow">
+              <div>
+                <div class="cc-srow-label">Hard decline alert</div>
+                <div class="cc-srow-hint">Instant email to officer when an auto-decline rule triggers — includes which rule matched</div>
+              </div>
+              <div class="cc-srow-right">
+                <button class="cc-preview-btn" onclick="ccPreviewEmail('hard_decline')">Preview</button>
+                <div class="cc-toggle on" onclick="this.classList.toggle('on')"></div>
+              </div>
+            </div>
+
+            <!-- Group 2: Loan Lifecycle -->
+            <div class="cc-notif-group-label" style="margin-top:4px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+              Loan lifecycle
+            </div>
+            <div class="cc-srow">
+              <div>
+                <div class="cc-srow-label">Disbursement confirmation</div>
+                <div class="cc-srow-hint">Email borrower and loan officer when a loan is disbursed — includes amount, tenor, and repayment schedule</div>
+              </div>
+              <div class="cc-srow-right">
+                <button class="cc-preview-btn" onclick="ccPreviewEmail('disbursement')">Preview</button>
+                <div class="cc-toggle on" onclick="this.classList.toggle('on')"></div>
+              </div>
+            </div>
+            <div class="cc-srow">
+              <div>
+                <div class="cc-srow-label">Repayment receipt</div>
+                <div class="cc-srow-hint">Email borrower on each repayment posted — includes running balance and next due date</div>
+              </div>
+              <div class="cc-srow-right">
+                <button class="cc-preview-btn" onclick="ccPreviewEmail('repayment')">Preview</button>
+                <div class="cc-toggle on" onclick="this.classList.toggle('on')"></div>
+              </div>
+            </div>
+            <div class="cc-srow">
+              <div>
+                <div class="cc-srow-label">Overdue reminders</div>
+                <div class="cc-srow-hint">Email borrower at Day 1, 3, 7 and 14 overdue — escalating tone, officer CC'd at Day 7</div>
+              </div>
+              <div class="cc-srow-right">
+                <button class="cc-preview-btn" onclick="ccPreviewEmail('overdue')">Preview</button>
+                <div class="cc-toggle on" onclick="this.classList.toggle('on')"></div>
+              </div>
+            </div>
+
+            <!-- Group 3: Portfolio Reporting -->
+            <div class="cc-notif-group-label" style="margin-top:4px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+              Portfolio reporting
+            </div>
+            <div class="cc-srow">
+              <div>
+                <div class="cc-srow-label">Weekly portfolio digest</div>
+                <div class="cc-srow-hint">Monday 8 AM summary to team leads — PAR, disbursements, new assessments, overdue count</div>
+              </div>
+              <div class="cc-srow-right">
+                <button class="cc-preview-btn" onclick="ccPreviewEmail('weekly_digest')">Preview</button>
+                <div class="cc-toggle on" onclick="this.classList.toggle('on')"></div>
+              </div>
+            </div>
+
+            <!-- Sender configuration -->
+            <div class="cc-notif-group-label" style="margin-top:4px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+              Sender configuration
+            </div>
+            <div class="cc-srow">
+              <div>
+                <div class="cc-srow-label">From address</div>
+                <div class="cc-srow-hint">Display name and email shown to borrowers and officers</div>
+              </div>
+              <div class="cc-srow-right" style="gap:6px;">
+                <input class="cc-from-input" id="cc-from-name" type="text" value="CentyCapital" placeholder="Display name">
+                <input class="cc-from-input" id="cc-from-email" type="email" value="noreply@centycapital.co.ke" placeholder="sender@yourdomain.com">
+              </div>
+            </div>
+            <div class="cc-srow" style="border-bottom:none;">
+              <div>
+                <div class="cc-srow-label">Reply-to address</div>
+                <div class="cc-srow-hint">Where borrower replies land — defaults to your support inbox</div>
+              </div>
+              <div class="cc-srow-right">
+                <input class="cc-from-input cc-from-input--wide" id="cc-reply-to" type="email" value="support@centycapital.co.ke" placeholder="support@yourdomain.com">
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Save bar -->
+        <div class="cc-sec">
+          <div class="cc-savebar">
+            <span style="font-size:12px;color:var(--text4);">Unsaved changes · settings take effect on next assessment</span>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-ghost">Discard</button>
+              <button class="btn btn-primary" onclick="ccSaveSettings()">Save settings</button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /settings-body -->
+    </div><!-- /settings-grid -->
+  </div><!-- /view-cc-settings -->
+
+</main>
+</div><!-- /shell -->
+
+<div id="toast-container"></div>
+
+<!-- Email Preview Modal -->
+<div id="cc-email-modal" class="cc-email-modal-overlay" style="display:none;" onclick="if(event.target===this)closeCCEmailModal()">
+  <div class="cc-email-modal">
+    <div class="cc-email-modal-head">
+      <div class="cc-email-modal-title" id="cc-email-modal-title">Email preview</div>
+      <button class="cc-email-modal-close" onclick="closeCCEmailModal()">×</button>
+    </div>
+    <div class="cc-email-modal-meta" id="cc-email-modal-meta"></div>
+    <div class="cc-email-preview-body">
+      <div class="cc-email-frame" id="cc-email-frame"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── CONSTANTS ─────────────────────────────────────────────────────────────────
+const AUTH_USERS = [
+  { email: 'admin@centycapital.com', password: 'demo1234', role: 'admin', tenantId: 'centycapital-ke', accountType: 'staff' },
+  { email: 'manager@centycapital.com', password: 'demo1234', role: 'credit_manager', tenantId: 'centycapital-ke', accountType: 'staff' },
+  { email: 'officer@centycapital.com', password: 'demo1234', role: 'credit_officer', tenantId: 'centycapital-ke', accountType: 'staff' },
+  { email: 'grace@client.centycapital.com', password: 'demo1234', role: 'client', tenantId: 'centycapital-ke', accountType: 'client', borrowerNationalId: '12345679' },
+  { email: 'faith@client.centycapital.com', password: 'demo1234', role: 'client', tenantId: 'centycapital-ke', accountType: 'client', borrowerNationalId: '34567890' },
+  { email: 'edwin@upeo.co.ke', password: 'demo1234', role: 'client', tenantId: 'upeo-co-ke', accountType: 'client', borrowerNationalId: '12345678' },
+];
+function _normalizeEmail(s) {
+  return String(s || '').trim().toLowerCase().replace(/[\u200B-\u200D\uFEFF]/g, '');
+}
+function _normalizePassword(s) {
+  let p = String(s || '').replace(/[\u200B-\u200D\uFEFF]/g, '');
+  try { if (typeof p.normalize === 'function') p = p.normalize('NFKC'); } catch (e) {}
+  return p.trim();
+}
+function findAuthUserByEmail(email) {
+  const want = _normalizeEmail(email);
+  return AUTH_USERS.find(u => _normalizeEmail(u.email) === want);
+}
+const CC_HIST_KEY = 'cc_score_history';
+const CC_SETS_KEY = 'cc_scorecard_settings';
+
+// ─── SCORE HISTORY DATA ────────────────────────────────────────────────────────
+const DEFAULT_HISTORY = [
+  {name:'James Kariuki Wairimu',  phone:'0702 157 657',score:729,band:'B',inflow:'1.31M',dbr:2.08,risk:'minor',   date:'28 Jul 2025',av:'JK'},
+  {name:'Mary Njeri Kamau',       phone:'0721 445 882',score:801,band:'A',inflow:'890K', dbr:3.2, risk:'low',     date:'22 Jul 2025',av:'MN'},
+  {name:'Peter Otieno Ochieng',   phone:'0733 221 009',score:554,band:'C',inflow:'340K', dbr:1.1, risk:'moderate',date:'18 Jul 2025',av:'PO'},
+  {name:'Esther Wanjiku Mwangi',  phone:'0714 887 223',score:668,band:'B',inflow:'620K', dbr:2.4, risk:'minor',   date:'15 Jul 2025',av:'EW'},
+  {name:'Samuel Mugo Kariuki',    phone:'0726 003 441',score:412,band:'D',inflow:'180K', dbr:0.8, risk:'high',    date:'10 Jul 2025',av:'SM'},
+  {name:'Grace Achieng Onyango',  phone:'0709 556 114',score:743,band:'B',inflow:'755K', dbr:2.9, risk:'minor',   date:'8 Jul 2025', av:'GA'},
+  {name:'Daniel Kiprop Rutto',    phone:'0718 332 770',score:822,band:'A',inflow:'1.05M',dbr:4.1, risk:'low',     date:'5 Jul 2025', av:'DK'},
+  {name:'Mercy Wambui Ngugi',     phone:'0742 119 885',score:490,band:'C',inflow:'270K', dbr:1.3, risk:'moderate',date:'2 Jul 2025', av:'MW'},
+  {name:'Benjamin Ochieng Aura',  phone:'0754 228 930',score:631,band:'B',inflow:'445K', dbr:1.8, risk:'minor',   date:'29 Jun 2025',av:'BO'},
+  {name:'Fatuma Hassan Jillo',    phone:'0763 441 002',score:378,band:'D',inflow:'120K', dbr:0.6, risk:'high',    date:'25 Jun 2025',av:'FH'},
+];
+
+const SCORE_WEIGHTS = [
+  {n:'Monthly avg inflow',v:25},
+  {n:'Fuliza utilisation',v:20},
+  {n:'Income consistency',v:15},
+  {n:'Bank diversity',v:10},
+  {n:'Mobile lender exposure',v:10},
+  {n:'Betting ratio',v:10},
+  {n:'Internal repayment history',v:10},
+];
+
+const MONTHLY_DATA = [
+  {m:'Jul 24',cr:440585,dr:440585},{m:'Aug 24',cr:635897,dr:608727},
+  {m:'Sep 24',cr:707966,dr:719790},{m:'Oct 24',cr:1021447,dr:1042187},
+  {m:'Nov 24',cr:1434391,dr:1434391},{m:'Dec 24',cr:1527944,dr:1524635},
+  {m:'Jan 25',cr:2111270,dr:2114579},{m:'Feb 25',cr:1775786,dr:1775786},
+  {m:'Mar 25',cr:1486090,dr:1486090},{m:'Apr 25',cr:1611858,dr:1611858},
+  {m:'May 25',cr:1854640,dr:1854640},{m:'Jun 25',cr:1392062,dr:1352913},
+];
+
+let SCORE_HISTORY = [];
+
+// ─── FILE STATE ────────────────────────────────────────────────────────────────
+const mFiles = [], bFiles = [];
+const MOCK_DETECT = [
+  {n:'KCB PDF',c:97,cl:'hi'},{n:'Equity Eazzy Excel',c:94,cl:'hi'},
+  {n:'Co-op PDF',c:76,cl:'md'},{n:'ABSA PDF',c:91,cl:'hi'},
+];
+
+// ─── UTIL ──────────────────────────────────────────────────────────────────────
+function fmt(n) {
+  if (n >= 1e6) return 'KES ' + (n/1e6).toFixed(2) + 'M';
+  if (n >= 1e3) return 'KES ' + Math.round(n/1e3) + 'K';
+  return 'KES ' + Math.round(n).toLocaleString();
+}
+
+function toast(msg, type = 'info') {
+  const c = document.getElementById('toast-container');
+  if (!c) return;
+  const t = document.createElement('div');
+  const cols = {success:'#00a865',error:'#dc2626',info:'#2563eb',warning:'#d97706'};
+  t.className = 'toast';
+  t.style.cssText = `position:relative;background:var(--surface);border:1px solid var(--border);border-left:3px solid ${cols[type]||cols.info};border-radius:var(--r);padding:10px 14px;font-size:13px;box-shadow:var(--shadow-lg);max-width:320px;animation:toastIn .3s ease both;`;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity .3s'; setTimeout(() => t.remove(), 300); }, 3200);
+}
+
+// ─── AUTH ──────────────────────────────────────────────────────────────────────
+function checkAuth() {
+  const sessRaw = localStorage.getItem('cc_session');
+  const shell = document.getElementById('app-shell');
+  const ls    = document.getElementById('login-screen');
+  if (sessRaw) {
+    try {
+      const sess = JSON.parse(sessRaw);
+      if (sess.accountType === 'client') {
+        window.location.href = '/';
+        return;
+      }
+    } catch (e) {}
+    if (ls)    ls.style.display    = 'none';
+    if (shell) shell.style.display = '';
+  } else {
+    if (ls)    ls.style.display    = 'flex';
+    if (shell) shell.style.display = 'none';
+  }
+}
+
+function doLogin() {
+  const email = _normalizeEmail(document.getElementById('login-email')?.value);
+  const pwd   = _normalizePassword(document.getElementById('login-pwd')?.value);
+  const err   = document.getElementById('login-error');
+  err.textContent = '';
+  if (!email || !pwd) { err.textContent = 'Please enter your email and password.'; return; }
+  const user = findAuthUserByEmail(email);
+  if (!user) {
+    err.textContent = 'No demo account for this email.';
+    document.getElementById('login-pwd').value = '';
+    return;
+  }
+  const expected = _normalizePassword(user.password || 'demo1234');
+  if (pwd !== expected) {
+    err.textContent = 'Wrong password. All demo accounts use: demo1234';
+    document.getElementById('login-pwd').value = '';
+    return;
+  }
+  localStorage.setItem('cc_session', JSON.stringify({
+    email: user.email,
+    role: user.role,
+    tenantId: user.tenantId,
+    accountType: user.accountType,
+    borrowerNationalId: user.borrowerNationalId || null,
+    at: Date.now(),
+  }));
+  if (user.accountType === 'client') {
+    window.location.href = '/';
+    return;
+  }
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app-shell').style.display = '';
+  showCCView('assess');
+}
+
+function doLogout() {
+  if (!confirm('Sign out of CentyCapital LMS?')) return;
+  localStorage.removeItem('cc_session');
+  window.location.href = 'index.html';
+}
+
+// ─── THEME ─────────────────────────────────────────────────────────────────────
+function applyTheme() {
+  const saved = localStorage.getItem('cc_theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  const btn = document.getElementById('theme-toggle-btn');
+  if (btn) btn.textContent = saved === 'dark' ? '☀️' : '🌙';
+}
+
+function toggleDarkMode() {
+  const cur  = document.documentElement.getAttribute('data-theme') || 'light';
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('cc_theme', next);
+  const btn = document.getElementById('theme-toggle-btn');
+  if (btn) btn.textContent = next === 'dark' ? '☀️' : '🌙';
+}
+
+// ─── SIDEBAR ───────────────────────────────────────────────────────────────────
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('mobile-overlay').classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('mobile-overlay').classList.remove('open');
+}
+function goLms(view) {
+  closeSidebar();
+  window.location.href = 'index.html#' + view;
+}
+
+// ─── VIEW NAV ──────────────────────────────────────────────────────────────────
+const CC_VIEWS = ['assess','history','cc-settings'];
+const CC_TITLES = {
+  assess: 'CentyCred — automated credit scoring',
+  history: 'Score History',
+  'cc-settings': 'Scorecard Settings',
+};
+
+function showCCView(v) {
+  closeSidebar();
+  CC_VIEWS.forEach(id => {
+    const el = document.getElementById('view-' + id);
+    if (el) el.style.display = (id === v) ? '' : 'none';
+  });
+  document.querySelectorAll('.cc-nav-item').forEach(n => n.classList.remove('active'));
+  const nav = document.querySelector(`.cc-nav-item[data-view="${v}"]`);
+  if (nav) nav.classList.add('active');
+  const titleEl = document.getElementById('topbar-title');
+  if (titleEl) titleEl.textContent = CC_TITLES[v] || 'CentyCred';
+  if (v === 'history') { loadHistory(); buildHistory(); }
+  if (v === 'cc-settings') buildWeights();
+}
+
+// ─── HISTORY PERSISTENCE ────────────────────────────────────────────────────────
+function loadHistory() {
+  try {
+    const raw = localStorage.getItem(CC_HIST_KEY);
+    SCORE_HISTORY = raw ? JSON.parse(raw) : [...DEFAULT_HISTORY];
+  } catch(e) { SCORE_HISTORY = [...DEFAULT_HISTORY]; }
+}
+
+function saveHistory() {
+  try { localStorage.setItem(CC_HIST_KEY, JSON.stringify(SCORE_HISTORY)); } catch(e) {}
+}
+
+function addToHistory(entry) {
+  SCORE_HISTORY.unshift(entry);
+  saveHistory();
+  buildRecentAnalyses();
+}
+
+// ─── GLOBAL SEARCH ─────────────────────────────────────────────────────────────
+function ccSearch(q) {
+  const results = document.getElementById('gsearch-results');
+  if (!results) return;
+  q = (q || '').trim().toLowerCase();
+  if (!q) { results.classList.remove('open'); return; }
+  const matches = SCORE_HISTORY.filter(h =>
+    h.name.toLowerCase().includes(q) || (h.phone || '').replace(/\s/g,'').includes(q.replace(/\s/g,''))
+  ).slice(0, 6);
+  if (!matches.length) {
+    results.innerHTML = `<div class="gsearch-empty">No results for "<strong>${q}</strong>"</div>`;
+    results.classList.add('open');
+    return;
+  }
+  results.innerHTML = `<div class="gsearch-group">Score History</div>` +
+    matches.map(h => `<div class="gsearch-item" onclick="hideSearch();showCCView('history');setTimeout(()=>{const s=document.getElementById('h-search');if(s){s.value='${h.name.split(' ')[0]}';filterHistory();}},100)">
+      <div class="gsearch-icon" style="background:var(--green-lt)"><span class="cc-band-badge ${h.band}" style="font-size:10px;padding:2px 6px;">${h.band}</span></div>
+      <div><div class="gsearch-text-main">${h.name}</div><div class="gsearch-text-sub">${h.phone} · Score ${h.score} · ${h.date}</div></div>
+    </div>`).join('');
+  results.classList.add('open');
+}
+
+function hideSearch() {
+  const r = document.getElementById('gsearch-results');
+  const i = document.getElementById('gsearch-input');
+  if (r) r.classList.remove('open');
+  if (i) i.value = '';
+}
+
+// ─── FILE UPLOAD ───────────────────────────────────────────────────────────────
+function renderFileList(type, arr) {
+  const fl = document.getElementById('cc-' + type + '-fl');
+  if (!fl) return;
+  fl.innerHTML = arr.map((f, i) => `
+    <div class="cc-file-item">
+      <div class="cc-file-dot"></div>
+      <div class="cc-file-name">${f.name}</div>
+      <div class="cc-file-rm" onclick="removeFile('${type}',${i},event)">×</div>
+    </div>`).join('');
+}
+
+function removeFile(type, i, e) {
+  e.stopPropagation();
+  if (type === 'mpesa') {
+    mFiles.splice(i, 1);
+    renderFileList('mpesa', mFiles);
+    document.getElementById('cc-mpesa-tag').textContent = 'Awaiting upload';
+    document.getElementById('cc-mpesa-tag').className = 'cc-ready-tag';
+    document.getElementById('cc-mpesa-card').classList.remove('ready');
+  } else {
+    bFiles.splice(i, 1);
+    renderFileList('bank', bFiles);
+    if (!bFiles.length) {
+      document.getElementById('cc-bank-tag').textContent = 'Awaiting upload';
+      document.getElementById('cc-bank-tag').className = 'cc-ready-tag';
+      document.getElementById('cc-bank-card').classList.remove('ready');
+      document.getElementById('cc-detect-box').innerHTML = '';
+      document.getElementById('cc-bank-dz').style.display = '';
+    }
+    renderDetect();
+  }
+  updateAnalyseBtn();
+}
+
+function onMpesaFile(inp) {
+  const f = inp.files[0]; if (!f) return;
+  mFiles.length = 0; mFiles.push(f);
+  renderFileList('mpesa', mFiles);
+  document.getElementById('cc-mpesa-card').classList.add('ready');
+  const tag = document.getElementById('cc-mpesa-tag');
+  tag.textContent = '✓ Ready'; tag.className = 'cc-ready-tag ok';
+  updateAnalyseBtn();
+}
+
+function onBankFiles(inp) {
+  Array.from(inp.files).forEach(f => { if (!bFiles.find(b => b.name === f.name)) bFiles.push(f); });
+  afterBankUpload();
+}
+
+function afterBankUpload() {
+  renderFileList('bank', bFiles);
+  document.getElementById('cc-bank-card').classList.toggle('ready', bFiles.length > 0);
+  if (bFiles.length) {
+    const tag = document.getElementById('cc-bank-tag');
+    tag.textContent = `✓ ${bFiles.length} file${bFiles.length > 1 ? 's' : ''} ready`;
+    tag.className = 'cc-ready-tag ok';
+  }
+  document.getElementById('cc-bank-dz').style.display = 'none';
+  renderDetect();
+  updateAnalyseBtn();
+}
+
+function renderDetect() {
+  if (!bFiles.length) { document.getElementById('cc-detect-box').innerHTML = ''; return; }
+  const rows = bFiles.map((f, i) => {
+    const d = MOCK_DETECT[i % MOCK_DETECT.length];
+    return `<div class="cc-detect-row">
+      <span style="font-size:11px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px;">${f.name}</span>
+      <span class="cc-conf-badge ${d.cl}">${d.n} · ${d.c}%</span>
+    </div>`;
+  }).join('');
+  document.getElementById('cc-detect-box').innerHTML = `<div class="cc-detect-box">${rows}</div>`;
+}
+
+function ccDov(e, id) { e.preventDefault(); document.getElementById(id).classList.add('drag'); }
+function ccDlv(id) { document.getElementById(id).classList.remove('drag'); }
+function ccDropMpesa(e) {
+  e.preventDefault(); e.stopPropagation();
+  document.getElementById('cc-mpesa-card').classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if (f) { mFiles.length = 0; mFiles.push(f); onMpesaFile({ files: [f] }); }
+}
+function ccDropBank(e) {
+  e.preventDefault(); e.stopPropagation();
+  document.getElementById('cc-bank-card').classList.remove('drag');
+  Array.from(e.dataTransfer.files).forEach(f => { if (!bFiles.find(b => b.name === f.name)) bFiles.push(f); });
+  afterBankUpload();
+}
+
+function updateAnalyseBtn() {
+  document.getElementById('cc-analyse-btn').disabled = (mFiles.length === 0 && bFiles.length === 0);
+}
+
+// ─── STAGE NAV ─────────────────────────────────────────────────────────────────
+function ccSetStage(s) {
+  ['upload','processing','confirm','result'].forEach(id => {
+    const el = document.getElementById('cc-stage-' + id);
+    if (el) el.style.display = (id === s) ? '' : 'none';
+  });
+}
+
+// ─── PROCESSING SIMULATION ─────────────────────────────────────────────────────
+function startProcessing() {
+  ccSetStage('processing');
+  for (let i = 1; i <= 5; i++) {
+    const s = document.getElementById('ccs' + i);
+    s.className = 'cc-proc-step';
+    s.querySelector('.cc-proc-dot').textContent = i;
+  }
+  const activeTimes = [0, 1300, 2600, 3900, 5200];
+  const doneTimes   = [1100, 2400, 3700, 5000, 6300];
+  activeTimes.forEach((d, i) => setTimeout(() => {
+    document.getElementById('ccs' + (i + 1)).classList.add('active');
+  }, d));
+  doneTimes.forEach((d, i) => setTimeout(() => {
+    const s = document.getElementById('ccs' + (i + 1));
+    s.className = 'cc-proc-step done';
+    s.querySelector('.cc-proc-dot').textContent = '✓';
+  }, d));
+  setTimeout(() => ccSetStage('confirm'), 7000);
+}
+
+// ─── SCORE GENERATION ──────────────────────────────────────────────────────────
+function goScore() {
+  ccSetStage('result');
+  buildMonthlyTable();
+  animateScoreArc(729, 900);
+  // Save to history
+  const entry = {
+    name: 'James Kariuki Wairimu', phone: '0702 157 657', score: 729, band: 'B',
+    inflow: '1.31M', dbr: 2.08, risk: 'minor',
+    date: new Date().toLocaleDateString('en-KE', {day:'numeric',month:'short',year:'numeric'}),
+    av: 'JK',
+  };
+  addToHistory(entry);
+  toast('CentyCred score generated · 729/900', 'success');
+}
+
+function animateScoreArc(score, max) {
+  const arc = document.getElementById('cc-score-arc');
+  if (!arc) return;
+  const r    = 40;
+  const circ = 2 * Math.PI * r;
+  const pct  = score / max;
+  const offset = (1 - pct) * circ;
+  const color = score >= 750 ? 'var(--green)' : score >= 600 ? 'var(--teal)' : score >= 450 ? 'var(--amber)' : 'var(--red)';
+  arc.style.stroke = color;
+  arc.style.strokeDasharray = circ.toFixed(1);
+  arc.style.strokeDashoffset = circ.toFixed(1);
+  const numEl = document.getElementById('cc-score-display');
+  if (numEl) numEl.style.color = color;
+  setTimeout(() => { arc.style.strokeDashoffset = offset.toFixed(1); }, 80);
+  // Animate number count-up
+  if (numEl) {
+    const dur = 1400, t0 = performance.now();
+    const tick = now => {
+      const p = Math.min((now - t0) / dur, 1);
+      const e = 1 - Math.pow(1 - p, 3);
+      numEl.textContent = Math.round(e * score);
+      if (p < 1) requestAnimationFrame(tick);
+      else numEl.textContent = score;
+    };
+    numEl.textContent = '0';
+    requestAnimationFrame(tick);
+  }
+}
+
+function buildMonthlyTable() {
+  const max = Math.max(...MONTHLY_DATA.map(m => Math.max(m.cr, m.dr)));
+  document.getElementById('cc-month-table').innerHTML = MONTHLY_DATA.map(m => {
+    const net = m.cr - m.dr;
+    const nc  = net >= 0 ? 'color:var(--green)' : 'color:var(--red)';
+    return `<div class="cc-month-row">
+      <div style="color:var(--text4);font-family:var(--mono)">${m.m}</div>
+      <div><div>${fmt(m.cr)}</div><div class="cc-mini-bar"><div class="cc-mini-fill" style="width:${Math.round(m.cr/max*100)}%;background:var(--green);"></div></div></div>
+      <div><div>${fmt(m.dr)}</div><div class="cc-mini-bar"><div class="cc-mini-fill" style="width:${Math.round(m.dr/max*100)}%;background:var(--red-lt);"></div></div></div>
+      <div style="text-align:right;font-size:11px;font-family:var(--mono);${nc}">${(net >= 0 ? '+' : '') + fmt(Math.abs(net))}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─── RECENT ANALYSES (upload page widget) ──────────────────────────────────────
+function relativeDate(dateStr) {
+  // Parse "28 Jul 2025" into a Date
+  try {
+    const d   = new Date(dateStr);
+    const now = new Date();
+    const diffMs  = now - d;
+    const diffDay = Math.floor(diffMs / 86400000);
+    if (diffDay === 0) return 'Today';
+    if (diffDay === 1) return 'Yesterday';
+    if (diffDay < 7)  return diffDay + ' days ago';
+    if (diffDay < 30) return Math.floor(diffDay / 7) + (Math.floor(diffDay / 7) === 1 ? ' week ago' : ' weeks ago');
+    // Fall back to "28 Jul" (no year if current year)
+    const sameYear = d.getFullYear() === now.getFullYear();
+    return d.toLocaleDateString('en-KE', { day: 'numeric', month: 'short', year: sameYear ? undefined : 'numeric' });
+  } catch(e) { return dateStr; }
+}
+
+function buildRecentAnalyses() {
+  const wrap  = document.getElementById('cc-recent-wrap');
+  const body  = document.getElementById('cc-recent-body');
+  const count = document.getElementById('cc-recent-count');
+  if (!wrap || !body) return;
+
+  // Always show section, but show empty state when no history
+  wrap.style.display = '';
+
+  if (count) count.textContent = Math.min(SCORE_HISTORY.length, 5) + ' of ' + SCORE_HISTORY.length;
+
+  if (!SCORE_HISTORY.length) {
+    if (count) count.style.display = 'none';
+    body.innerHTML = `
+      <div class="cc-recent-empty">
+        <div class="cc-recent-empty-icon">📊</div>
+        <div class="cc-recent-empty-title">No assessments yet</div>
+        <div class="cc-recent-empty-sub">Upload your first M-Pesa or bank statement above to generate a CentyCred score.</div>
+      </div>`;
+    return;
+  }
+
+  if (count) count.style.display = '';
+  const recent = SCORE_HISTORY.slice(0, 5);
+  body.innerHTML = recent.map(r => {
+    const safeName = r.name.replace(/'/g, "\\'");
+    const dbrColor = r.dbr < 1.5 ? 'color:var(--red)' : r.dbr >= 2 ? 'color:var(--green)' : 'color:var(--amber)';
+    return `<div class="cc-recent-row" onclick="viewAssessment('${safeName}')">
+      <div class="cc-recent-cell">
+        <div class="cc-recent-av ${r.band}">${r.av}</div>
+        <div style="min-width:0;overflow:hidden;">
+          <div class="cc-recent-name">${r.name}</div>
+          <div class="cc-recent-phone">${r.phone}</div>
+        </div>
+      </div>
+      <div class="cc-recent-cell"><span class="cc-band-badge ${r.band}">${r.score} · ${r.band}</span></div>
+      <div class="cc-recent-cell" style="font-family:var(--mono);font-weight:500;color:var(--text);">KES ${r.inflow}</div>
+      <div class="cc-recent-cell" style="font-family:var(--mono);${dbrColor}">${r.dbr}</div>
+      <div class="cc-recent-cell" style="color:var(--text3);font-size:12px;">${relativeDate(r.date)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─── SCORE HISTORY TABLE ────────────────────────────────────────────────────────
+function buildHistory() {
+  const q    = (document.getElementById('h-search')?.value || '').toLowerCase();
+  const band = document.getElementById('h-band-filter')?.value || '';
+  let data = SCORE_HISTORY.filter(h => {
+    if (q && !h.name.toLowerCase().includes(q) && !h.phone.includes(q)) return false;
+    if (band && h.band !== band) return false;
+    return true;
+  });
+  const riskLabel = {low:'Low risk',minor:'Minor risk',moderate:'Moderate risk',high:'High risk'};
+  document.getElementById('cc-hist-body').innerHTML = data.length
+    ? data.map(r => `<div class="cc-hist-row" onclick="viewAssessment('${r.name}')">
+        <div class="cc-hist-cell" style="gap:10px;">
+          <div class="cc-hist-av">${r.av}</div>
+          <div>
+            <div style="font-weight:500;">${r.name}</div>
+            <div style="font-size:11px;color:var(--text4);">${r.phone} · ${r.date}</div>
+          </div>
+        </div>
+        <div class="cc-hist-cell"><span class="cc-band-badge ${r.band}">${r.score} · ${r.band}</span></div>
+        <div class="cc-hist-cell" style="font-weight:500;font-family:var(--mono);">KES ${r.inflow}</div>
+        <div class="cc-hist-cell" style="font-family:var(--mono);${r.dbr < 1.5 ? 'color:var(--red)' : r.dbr >= 2 ? 'color:var(--green)' : 'color:var(--amber)'}">${r.dbr}</div>
+        <div class="cc-hist-cell"><span class="cc-risk-dot ${r.risk}"></span>${riskLabel[r.risk]||r.risk}</div>
+        <div class="cc-hist-cell"><div style="display:flex;gap:5px;">
+          <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation();viewAssessment('${r.name}')">View</button>
+          <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation();toast('PDF export coming soon','info')">PDF</button>
+        </div></div>
+      </div>`).join('')
+    : `<div style="padding:40px;text-align:center;color:var(--text4);">No assessments match your filters</div>`;
+
+  // Update summary stats
+  const total = SCORE_HISTORY.length;
+  const avg   = total ? Math.round(SCORE_HISTORY.reduce((s,h) => s + h.score, 0) / total) : 0;
+  const approved = SCORE_HISTORY.filter(h => h.band === 'A' || h.band === 'B').length;
+  const flagged  = SCORE_HISTORY.filter(h => h.band === 'D').length;
+  const _s = id => { const e = document.getElementById(id); if (e) e.textContent = id === 'h-avg' ? avg : id === 'h-total' ? total : id === 'h-approved' ? approved : flagged; };
+  _s('h-total'); _s('h-avg'); _s('h-approved'); _s('h-flagged');
+}
+
+function filterHistory() { buildHistory(); }
+
+function viewAssessment(name) {
+  const h = SCORE_HISTORY.find(x => x.name === name);
+  if (!h) return;
+  toast(`Loading score for ${name.split(' ')[0]}…`, 'info');
+  showCCView('assess');
+  setTimeout(() => {
+    ccSetStage('result');
+    const score = h.score;
+    animateScoreArc(score, 900);
+    document.getElementById('cc-score-display').textContent = score;
+    buildMonthlyTable();
+  }, 200);
+}
+
+// ─── SETTINGS ──────────────────────────────────────────────────────────────────
+const CC_SETTING_PANELS = ['sc-weights','sc-bands','sc-rules','sc-parser','sc-integrations','sc-notifications'];
+
+function ccSNav(el, target) {
+  document.querySelectorAll('.cc-sni').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  CC_SETTING_PANELS.forEach(id => {
+    const p = document.getElementById(id);
+    if (p) p.style.display = (p.id === target) ? '' : 'none';
+  });
+}
+
+function buildWeights() {
+  document.getElementById('cc-weight-rows').innerHTML = SCORE_WEIGHTS.map((w, i) => `
+    <div class="cc-weight-row">
+      <div class="cc-weight-name">${w.n}</div>
+      <div class="cc-weight-bar-wrap"><div class="cc-weight-bar" id="ccwb${i}" style="width:${Math.min(w.v * 1.4, 100)}%"></div></div>
+      <input class="cc-weight-input" id="ccwi${i}" value="${w.v}" oninput="updateWeight(${i}, this.value)">
+      <span style="font-size:11px;color:var(--text4);">%</span>
+    </div>`).join('');
+  updateWeightTotal();
+}
+
+function updateWeight(i, v) {
+  const n = parseInt(v) || 0;
+  SCORE_WEIGHTS[i].v = n;
+  const bar = document.getElementById('ccwb' + i);
+  if (bar) bar.style.width = Math.min(n * 1.4, 100) + '%';
+  updateWeightTotal();
+}
+
+function updateWeightTotal() {
+  const total = SCORE_WEIGHTS.reduce((s, w) => s + w.v, 0);
+  const el    = document.getElementById('cc-weight-total');
+  if (el) {
+    el.textContent = total + '%';
+    el.className = 'cc-weight-total-val ' + (total === 100 ? 'ok' : 'bad');
+  }
+}
+
+function ccSaveSettings() {
+  try { localStorage.setItem(CC_SETS_KEY, JSON.stringify(SCORE_WEIGHTS)); } catch(e) {}
+  toast('Scorecard settings saved', 'success');
+}
+
+// ─── EMAIL PREVIEW ─────────────────────────────────────────────────────────────
+const EMAIL_TEMPLATES = {
+  low_score: {
+    title: 'Low score alert',
+    to: 'Loan Officer (officer@centycapital.co.ke)',
+    subject: '⚠️ CentyCred alert — Peter Otieno scored 554 (Band C)',
+    preview: `
+      <div class="cc-email-frame-subject">CentyCred alert — low credit score detected</div>
+      <div class="cc-email-frame-body">Hi Edwin,<br><br>A CentyCred assessment was just completed with a score that falls in Band C. Please review before proceeding with the application.</div>
+      <div class="cc-email-frame-divider"></div>
+      <div class="cc-email-frame-detail"><span class="cc-email-frame-detail-label">Applicant</span><span>Peter Otieno Ochieng</span></div>
+      <div class="cc-email-frame-detail"><span class="cc-email-frame-detail-label">Score</span><span style="color:#d97706;font-weight:600;">554 / 900 · Band C</span></div>
+      <div class="cc-email-frame-detail"><span class="cc-email-frame-detail-label">Risk</span><span>Moderate — manual review recommended</span></div>
+      <div class="cc-email-frame-detail"><span class="cc-email-frame-detail-label">Assessed</span><span>18 Mar 2026, 10:42 AM</span></div>
+      <div class="cc-email-frame-cta"><a class="cc-email-frame-btn" href="#">View full CentyCred report →</a></div>`,
+  },
+  assessment_complete: {
+    title: 'Assessment complete (applicant)',
+    to: 'Applicant (peter.otieno@gmail.com)',
+    subject: 'Your CentyCred score is ready — CentyCapital',
+    preview: `
+      <div class="cc-email-frame-subject">Your credit assessment is complete</div>
+      <div class="cc-email-frame-body">Hi Peter,<br><br>Your CentyCred credit assessment has been processed. A loan officer will be in touch shortly to discuss your application.</div>
+      <div class="cc-email-frame-divider"></div>
+      <div class="cc-email-frame-detail"><span class="cc-email-frame-detail-label">Score</span><span style="font-weight:600;">554 / 900</span></div>
+      <div class="cc-email-frame-detail"><span class="cc-email-frame-detail-label">Period</span><span>Jan 2025 – Mar 2026 · 12 months</span></div>
+      <div class="cc-email-frame-detail"><span class="cc-email-frame-detail-label">Sources</span><span>M-Pesa + KCB + Equity</span></div>
+      <div class="cc-email-frame-body" style="margin-top:12px;color:#6b7280;font-size:12px;">Questions? Reply to this email or call us on 0800 723 000.</div>`,
+  },
+  hard_decline: {
+    title: 'Hard decline alert',
+    to: 'Loan Officer (officer@centycapital.co.ke)',
+    subject: '🚫 Auto-declined — Samuel Mugo triggered Fuliza rule',
+    preview: `
+      <div class="cc-email-frame-subject">Application auto-declined — hard rule triggered</div>
+      <div class="cc-email-frame-body">Hi Edwin,<br><br>An application has been automatically declined because it matched a hard decline rule. No further action is needed unless you choose to override.</div>
+      <div class="cc-email-frame-divider"></div>
+      <div class="cc-email-frame-detail"><span class="cc-email-frame-detail-label">Applicant</span><span>Samuel Mugo Kariuki</span></div>
+      <div class="cc-email-frame-detail"><span class="cc-email-frame-detail-label">Rule</span><span style="color:#dc2626;font-weight:600;">Fuliza utilisation &gt; 30%</span></div>
+      <div class="cc-email-frame-detail"><span class="cc-email-frame-detail-label">Actual</span><span>38.4% of monthly inflow</span></div>
+      <div class="cc-email-frame-detail"><span class="cc-email-frame-detail-label">Score</span><span>412 / 900 · Band D</span></div>
+      <div class="cc-email-frame-cta"><a class="cc-email-frame-btn" style="background:#dc2626;" href="#">Review or override →</a></div>`,
+  },
+  disbursement: {
+    title: 'Disbursement confirmation',
+    to: 'Borrower (grace.achieng@gmail.com)',
+    subject: 'Loan disbursed — KES 200,000 · CentyCapital',
+    preview: `
+      <div class="cc-email-frame-subject">Your loan has been disbursed</div>
+      <div class="cc-email-frame-body">Hi Grace,<br><br>Your loan has been approved and disbursed to your M-Pesa account ending in <strong>114</strong>. Please check your M-Pesa balance.</div>
+      <div class="cc-email-frame-divider"></div>
+      <div class="cc-email-frame-detail"><span class="cc-email-frame-detail-label">Amount</span><span style="color:#00a865;font-weight:600;">KES 200,000</span></div>
+      <div class="cc-email-frame-detail"><span class="cc-email-frame-detail-label">Tenor</span><span>90 days</span></div>
+      <div class="cc-email-frame-detail"><span class="cc-email-frame-detail-label">Rate</span><span>4.5% per month</span></div>
+      <div class="cc-email-frame-detail"><span class="cc-email-frame-detail-label">Total due</span><span style="font-weight:600;">KES 227,000 by 16 Jun 2026</span></div>
+      <div class="cc-email-frame-detail"><span class="cc-email-frame-detail-label">Ref</span><span>CC-2026-0458</span></div>
+      <div class="cc-email-frame-body" style="margin-top:12px;color:#6b7280;font-size:12px;">Pay via M-Pesa Paybill <strong>123456</strong>, Account <strong>CC-2026-0458</strong>.</div>`,
+  },
+  repayment: {
+    title: 'Repayment receipt',
+    to: 'Borrower (grace.achieng@gmail.com)',
+    subject: 'Repayment received — KES 75,667 · CentyCapital',
+    preview: `
+      <div class="cc-email-frame-subject">Repayment received — thank you</div>
+      <div class="cc-email-frame-body">Hi Grace,<br><br>We've received your repayment. Here's your updated loan statement.</div>
+      <div class="cc-email-frame-divider"></div>
+      <div class="cc-email-frame-detail"><span class="cc-email-frame-detail-label">Received</span><span style="color:#00a865;font-weight:600;">KES 75,667</span></div>
+      <div class="cc-email-frame-detail"><span class="cc-email-frame-detail-label">Date</span><span>18 Mar 2026</span></div>
+      <div class="cc-email-frame-detail"><span class="cc-email-frame-detail-label">Balance</span><span style="font-weight:600;">KES 151,333 remaining</span></div>
+      <div class="cc-email-frame-detail"><span class="cc-email-frame-detail-label">Next due</span><span>16 Apr 2026 · KES 75,667</span></div>
+      <div class="cc-email-frame-detail"><span class="cc-email-frame-detail-label">Ref</span><span>CC-2026-0458</span></div>`,
+  },
+  overdue: {
+    title: 'Overdue reminder (Day 3)',
+    to: 'Borrower (samuel.mugo@gmail.com)',
+    subject: 'Action required — loan CC-2026-0301 is 3 days overdue',
+    preview: `
+      <div class="cc-email-frame-subject">Your loan repayment is overdue</div>
+      <div class="cc-email-frame-body">Hi Samuel,<br><br>Your loan repayment was due on <strong>15 Mar 2026</strong> and has not been received. Please settle immediately to avoid additional charges.</div>
+      <div class="cc-email-frame-divider"></div>
+      <div class="cc-email-frame-detail"><span class="cc-email-frame-detail-label">Overdue</span><span style="color:#dc2626;font-weight:600;">KES 32,400</span></div>
+      <div class="cc-email-frame-detail"><span class="cc-email-frame-detail-label">Days late</span><span style="color:#dc2626;font-weight:600;">3 days</span></div>
+      <div class="cc-email-frame-detail"><span class="cc-email-frame-detail-label">Ref</span><span>CC-2026-0301</span></div>
+      <div class="cc-email-frame-cta"><a class="cc-email-frame-btn" style="background:#dc2626;" href="#">Pay now via M-Pesa →</a></div>
+      <div class="cc-email-frame-body" style="margin-top:12px;color:#6b7280;font-size:12px;">Paybill <strong>123456</strong>, Account <strong>CC-2026-0301</strong>. Questions? Call 0800 723 000.</div>`,
+  },
+  weekly_digest: {
+    title: 'Weekly portfolio digest',
+    to: 'Team leads (leads@centycapital.co.ke)',
+    subject: 'CentyCapital weekly digest — week of 17 Mar 2026',
+    preview: `
+      <div class="cc-email-frame-subject">Weekly portfolio digest · 17–23 Mar 2026</div>
+      <div class="cc-email-frame-body">Good morning team,<br><br>Here's your weekly snapshot of the CentyCapital loan portfolio.</div>
+      <div class="cc-email-frame-divider"></div>
+      <div class="cc-email-frame-detail"><span class="cc-email-frame-detail-label">Active loans</span><span style="font-weight:600;">12 · KES 4.2M book</span></div>
+      <div class="cc-email-frame-detail"><span class="cc-email-frame-detail-label">Disbursed</span><span>KES 680,000 this week · 3 loans</span></div>
+      <div class="cc-email-frame-detail"><span class="cc-email-frame-detail-label">Collected</span><span style="color:#00a865;font-weight:600;">KES 312,500 this week</span></div>
+      <div class="cc-email-frame-detail"><span class="cc-email-frame-detail-label">Overdue</span><span style="color:#dc2626;font-weight:600;">2 loans · KES 64,800 · PAR 1.5%</span></div>
+      <div class="cc-email-frame-detail"><span class="cc-email-frame-detail-label">New scores</span><span>8 CentyCred assessments · avg 694</span></div>
+      <div class="cc-email-frame-cta"><a class="cc-email-frame-btn" href="#">Open full report →</a></div>`,
+  },
+};
+
+function ccPreviewEmail(type) {
+  const tpl = EMAIL_TEMPLATES[type];
+  if (!tpl) return;
+  const fromName  = document.getElementById('cc-from-name')?.value  || 'CentyCapital';
+  const fromEmail = document.getElementById('cc-from-email')?.value || 'noreply@centycapital.co.ke';
+
+  document.getElementById('cc-email-modal-title').textContent = tpl.title;
+  document.getElementById('cc-email-modal-meta').innerHTML = `
+    <div class="cc-email-meta-row"><span class="cc-email-meta-label">From</span><span>${fromName} &lt;${fromEmail}&gt;</span></div>
+    <div class="cc-email-meta-row"><span class="cc-email-meta-label">To</span><span>${tpl.to}</span></div>
+    <div class="cc-email-meta-row"><span class="cc-email-meta-label">Subject</span><span style="font-weight:500;color:var(--text);">${tpl.subject}</span></div>`;
+
+  document.getElementById('cc-email-frame').innerHTML = `
+    <div class="cc-email-frame-header">
+      <div class="cc-email-frame-logo">${fromName}</div>
+      <div class="cc-email-frame-tagline">The numbers that run your lending business.</div>
+    </div>
+    <div class="cc-email-frame-content">${tpl.preview}</div>
+    <div class="cc-email-frame-footer">${fromName} · Nairobi, Kenya · <a href="#" style="color:#9ca3af;">Unsubscribe</a></div>`;
+
+  document.getElementById('cc-email-modal').style.display = 'flex';
+}
+
+function closeCCEmailModal() {
+  document.getElementById('cc-email-modal').style.display = 'none';
+}
+
+// ─── RESULT ACTIONS ────────────────────────────────────────────────────────────
+function ccDownloadPdf() { toast('PDF generation queued — will download shortly', 'info'); }
+function ccExplain() {
+  toast('Score breakdown: Inflow strength +180, Fuliza exposure −45, DBR quality +140, Bank diversity +85, Repayment history +80, Consistency +60, Betting −20 = 729', 'info');
+}
+function ccDecision() {
+  toast('Recommendation: Approve up to KES 150,000 at 4.5%/mo · 90-day tenor · monitor Fuliza utilisation', 'success');
+}
+
+// ─── KEYBOARD ──────────────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    hideSearch();
+    closeCCEmailModal();
+  }
+  if (e.key === 'Enter' && document.activeElement?.id === 'login-pwd') doLogin();
+});
+document.addEventListener('click', e => {
+  const w = document.getElementById('gsearch-wrap');
+  if (w && !w.contains(e.target)) hideSearch();
+});
+
+// ─── HASH-BASED DEEP LINKING ───────────────────────────────────────────────────
+function resolveHashView() {
+  const hash = window.location.hash.replace('#','');
+  if (hash === 'history' || hash === 'cc-settings' || hash === 'assess') {
+    showCCView(hash);
+  } else {
+    showCCView('assess');
+  }
+  // Clean the hash from the URL without triggering a reload
+  history.replaceState(null, '', window.location.pathname);
+}
+
+// ─── INIT ──────────────────────────────────────────────────────────────────────
+applyTheme();
+checkAuth();
+loadHistory();
+buildWeights();
+ccSetStage('upload');
+buildRecentAnalyses();
+resolveHashView();
+</script>
+</body>
+</html>
