@@ -2,9 +2,10 @@
 set -euo pipefail
 
 # Deploy static LMS console files to production web root.
-# Default target uses the SSH host alias already configured in this environment.
+# Production: lms.centycapital.com on 172.239.110.187 (CyberPanel/OpenLiteSpeed), docroot below.
+# Override TARGET_HOST if you use an SSH config alias (e.g. linode-2).
 
-TARGET_HOST="${TARGET_HOST:-linode-2}"
+TARGET_HOST="${TARGET_HOST:-root@172.239.110.187}"
 TARGET_PATH="${TARGET_PATH:-/home/lms.centycapital.com/public_html}"
 
 echo "[1/3] Validating local files..."

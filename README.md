@@ -31,16 +31,21 @@ Then open http://localhost:3001
 
 - Point to real APIs (ERPNext/lending) when backend is ready.
 - Add auth and wire `erp_customer_id` for customer-facing flows if this app hosts any.
-- Deploy to lms.centycapital.com (e.g. Nginx static or same host as Centyapp).
+- Deploy to lms.centycapital.com (static site on CyberPanel host **172.239.110.187**).
 
 ## Deploy (server over SSH)
+
+**Production host:** `172.239.110.187` (hostname `tarakilishi-web-01`)  
+**Web root:** `/home/lms.centycapital.com/public_html`
 
 ```bash
 ./deploy_lms.sh
 ```
 
-Optional env overrides:
+Default SSH target is `root@172.239.110.187`. Optional overrides:
 
 ```bash
+TARGET_HOST=root@172.239.110.187 TARGET_PATH=/home/lms.centycapital.com/public_html ./deploy_lms.sh
+# or an SSH config Host alias:
 TARGET_HOST=linode-2 TARGET_PATH=/home/lms.centycapital.com/public_html ./deploy_lms.sh
 ```
