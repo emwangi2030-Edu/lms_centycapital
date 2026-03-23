@@ -1,0 +1,15 @@
+RewriteEngine On
+
+# Serve existing files/directories directly.
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# CentyCred clean routes.
+RewriteRule ^centycred/(assess|history|cc-settings)/?$ /centycred.html [L,QSA]
+
+# LMS SPA clean routes.
+RewriteRule ^(dashboard|leads|applications|loans|borrowers|mpesa|reports|products|kyc|profiles|sms|dms|settings|profile)/?$ /index.html [L,QSA]
+
+# Fallback SPA route.
+RewriteRule ^.*$ /index.html [L,QSA]

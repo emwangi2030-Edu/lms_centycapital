@@ -7,6 +7,7 @@ This runbook applies:
 - `SUPABASE_MIGRATION_002.sql`
 - `SUPABASE_MIGRATION_003.sql`
 - `SUPABASE_SEED_DEMO.sql` (optional for UAT demo data)
+- `SUPABASE_BOOTSTRAP_ALL.sql` (one-click wrapper for CLI/psql)
 
 ## 1) Pre-checks
 
@@ -196,4 +197,16 @@ If rollback is required:
 - Prefer restoring from backup/snapshot.
 - For selective rollback, drop newly created objects in reverse dependency order.
 - Do not drop auth-linked tables (`profiles`) without verifying downstream dependencies.
+
+## 9) One-click bootstrap (CLI/psql)
+
+For fresh environments, run one command using `SUPABASE_BOOTSTRAP_ALL.sql`:
+
+```bash
+psql "$SUPABASE_DB_URL" -f SUPABASE_BOOTSTRAP_ALL.sql
+```
+
+Notes:
+- `SUPABASE_BOOTSTRAP_ALL.sql` uses `\i` includes, so run it from the same folder as the migration files.
+- In Supabase SQL Editor, run the migration files individually (SQL Editor does not support `\i`).
 
